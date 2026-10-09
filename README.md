@@ -1,109 +1,98 @@
-<a href="https://demo-nextjs-with-supabase.vercel.app/">
-  <img alt="Next.js and Supabase Starter Kit - the fastest way to build apps with Next.js and Supabase" src="https://demo-nextjs-with-supabase.vercel.app/opengraph-image.png">
-  <h1 align="center">Next.js and Supabase Starter Kit</h1>
-</a>
+# PickleBoard
 
-<p align="center">
- The fastest way to build apps with Next.js and Supabase
-</p>
+PickleBoard runs open-play pickleball sessions: check players in, build fair
+matches, manage courts and scores, and share a read-only Live Board with every
+player through one QR code.
 
-<p align="center">
-  <a href="#features"><strong>Features</strong></a> ·
-  <a href="#demo"><strong>Demo</strong></a> ·
-  <a href="#deploy-to-vercel"><strong>Deploy to Vercel</strong></a> ·
-  <a href="#clone-and-run-locally"><strong>Clone and run locally</strong></a> ·
-  <a href="#feedback-and-issues"><strong>Feedback and issues</strong></a>
-  <a href="#more-supabase-examples"><strong>More Examples</strong></a>
-</p>
-<br/>
+## Live Board
 
-## Features
+Each active session receives its own high-entropy capability URL:
 
-- Works across the entire [Next.js](https://nextjs.org) stack
-  - App Router
-  - Pages Router
-  - Proxy
-  - Client
-  - Server
-  - It just works!
-- supabase-ssr. A package to configure Supabase Auth to use cookies
-- Password-based authentication block installed via the [Supabase UI Library](https://supabase.com/ui/docs/nextjs/password-based-auth)
-- Styling with [Tailwind CSS](https://tailwindcss.com)
-- Components with [shadcn/ui](https://ui.shadcn.com/)
-- Optional deployment with [Supabase Vercel Integration and Vercel deploy](#deploy-your-own)
-  - Environment variables automatically assigned to Vercel project
+```text
+/live/[publicToken]
+```
 
-## Demo
+The UUID token is created atomically when the organizer starts the session. It
+does not rotate on a duplicate Start submission, is never returned inside the
+public board payload, and continues to show final results after the session
+ends. Draft sessions have no active token or QR code. Legacy session-id and
+club-live routes are not player access paths.
 
-You can view a fully working demo at [demo-nextjs-with-supabase.vercel.app](https://demo-nextjs-with-supabase.vercel.app/).
+The page displays live courts, running scores, persisted match timers, Up Next,
+queue status and wait estimates, and the five-game-qualified podium leaderboard.
+Players use a normal phone browser; no account or app download is required.
 
-## Deploy to Vercel
+### QR origin requirement
 
-Vercel deployment will guide you through creating a Supabase account and project.
+Never present a `localhost` QR code to players. A phone resolves `localhost` to
+the phone itself, not the organizer's computer. Set `NEXT_PUBLIC_APP_URL` to the
+deployed origin:
 
-After installation of the Supabase integration, all relevant environment variables will be assigned to the project so the deployment is fully functioning.
+```env
+NEXT_PUBLIC_APP_URL=https://your-production-domain.com
+```
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fvercel%2Fnext.js%2Ftree%2Fcanary%2Fexamples%2Fwith-supabase&project-name=nextjs-with-supabase&repository-name=nextjs-with-supabase&demo-title=nextjs-with-supabase&demo-description=This+starter+configures+Supabase+Auth+to+use+cookies%2C+making+the+user%27s+session+available+throughout+the+entire+Next.js+app+-+Client+Components%2C+Server+Components%2C+Route+Handlers%2C+Server+Actions+and+Middleware.&demo-url=https%3A%2F%2Fdemo-nextjs-with-supabase.vercel.app%2F&external-id=https%3A%2F%2Fgithub.com%2Fvercel%2Fnext.js%2Ftree%2Fcanary%2Fexamples%2Fwith-supabase&demo-image=https%3A%2F%2Fdemo-nextjs-with-supabase.vercel.app%2Fopengraph-image.png)
+If it remains `http://localhost:3000`, the organizer dialog refuses to draw the
+QR and explains how to fix it. When the browser is already using a reachable LAN
+or production address, that origin is used as a safe fallback.
 
-The above will also clone the Starter kit to your GitHub, you can clone that locally and develop locally.
+### Local phone testing
 
-If you wish to just develop locally and not deploy to Vercel, [follow the steps below](#clone-and-run-locally).
+Use a placeholder matching your computer's LAN address; never commit the real
+value:
 
-## Clone and run locally
+```env
+NEXT_PUBLIC_APP_URL=http://10.9.21.83:3000
+```
 
-1. You'll first need a Supabase project which can be made [via the Supabase dashboard](https://database.new)
+Start Next.js on the network interface:
 
-2. Create a Next.js app using the Supabase Starter template npx command
+```bash
+npm run dev -- --hostname 0.0.0.0
+```
 
-   ```bash
-   npx create-next-app --example with-supabase with-supabase-app
-   ```
+Connect the phone and computer to the same Wi-Fi, open an active public session,
+choose **Show QR Code**, and scan. If the address is correct but the phone cannot
+connect, the operating-system firewall or Wi-Fi client isolation may need manual
+configuration. PickleBoard does not change firewall settings.
 
-   ```bash
-   yarn create next-app --example with-supabase with-supabase-app
-   ```
+## Setup
 
-   ```bash
-   pnpm create next-app --example with-supabase with-supabase-app
-   ```
+```bash
+npm install
+cp .env.example .env.local
+npm run dev
+```
 
-3. Use `cd` to change into the app's directory
+Required variables:
 
-   ```bash
-   cd with-supabase-app
-   ```
+```env
+NEXT_PUBLIC_SUPABASE_URL=https://your-project-ref.supabase.co
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=sb_publishable_replace_me
+NEXT_PUBLIC_APP_URL=http://localhost:3000
+```
 
-4. Rename `.env.example` to `.env.local` and update the following:
+The database schema and RLS policies are under `supabase/migrations/`. Apply
+forward migrations to the linked project with the Supabase CLI through `npx`.
 
-  ```env
-  NEXT_PUBLIC_SUPABASE_URL=[INSERT SUPABASE PROJECT URL]
-  NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=[INSERT SUPABASE PROJECT API PUBLISHABLE OR ANON KEY]
-  ```
-  > [!NOTE]
-  > This example uses `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, which refers to Supabase's new **publishable** key format.
-  > Both legacy **anon** keys and new **publishable** keys can be used with this variable name during the transition period. Supabase's dashboard may show `NEXT_PUBLIC_SUPABASE_ANON_KEY`; its value can be used in this example.
-  > See the [full announcement](https://github.com/orgs/supabase/discussions/29260) for more information.
+## Verification
 
-  Both `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` can be found in [your Supabase project's API settings](https://supabase.com/dashboard/project/_?showConnect=true)
+```bash
+npx tsc --noEmit
+npm run lint
+npm test
+npm run build
+```
 
-5. You can now run the Next.js local development server:
+The SQL authorization suite is transaction-wrapped and leaves no fixtures:
 
-   ```bash
-   npm run dev
-   ```
+```bash
+psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f supabase/tests/rls_verification.sql
+```
 
-   The starter kit should now be running on [localhost:3000](http://localhost:3000/).
+## Stack
 
-6. This template comes with the default shadcn/ui style initialized. If you instead want other ui.shadcn styles, delete `components.json` and [re-install shadcn/ui](https://ui.shadcn.com/docs/installation/next)
-
-> Check out [the docs for Local Development](https://supabase.com/docs/guides/getting-started/local-development) to also run Supabase locally.
-
-## Feedback and issues
-
-Please file feedback and issues over on the [Supabase GitHub org](https://github.com/supabase/supabase/issues/new/choose).
-
-## More Supabase examples
-
-- [Next.js Subscription Payments Starter](https://github.com/vercel/nextjs-subscription-payments)
-- [Cookie-based Auth and the Next.js 13 App Router (free course)](https://youtube.com/playlist?list=PL5S4mPUpp4OtMhpnp93EFSo42iQ40XjbF)
-- [Supabase Auth and the Next.js App Router](https://github.com/supabase/supabase/tree/master/examples/auth/nextjs)
+- Next.js 16 App Router and React 19
+- Supabase Auth, Postgres, RLS, and Realtime
+- Tailwind CSS 3 and shadcn/ui
+- Vitest, Testing Library, and Playwright
