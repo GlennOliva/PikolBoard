@@ -40,8 +40,8 @@ describe("the encoded URL is always absolute", () => {
   it("is parseable as a URL on every branch", () => {
     for (const input of [
       { appUrl: "https://pickle.example.com" },
-      { appUrl: "http://192.168.1.4:3000" },
-      { appUrl: "", browserOrigin: "http://192.168.1.4:3000" },
+      { appUrl: "https://pikol-board.vercel.app" },
+      { appUrl: "", browserOrigin: "https://pikol-board.vercel.app" },
       { appUrl: undefined, browserOrigin: undefined },
     ]) {
       const { url } = resolveLiveBoardUrl({ ...base, ...input });
@@ -51,7 +51,7 @@ describe("the encoded URL is always absolute", () => {
   });
 
   it("keeps a non-default port, which LAN addresses depend on", () => {
-    const { url } = resolveLiveBoardUrl({ ...base, appUrl: "http://192.168.1.4:3000" });
+    const { url } = resolveLiveBoardUrl({ ...base, appUrl: "https://pikol-board.vercel.app" });
     expect(new URL(url).port).toBe("3000");
   });
 
@@ -95,10 +95,10 @@ describe("production never encodes localhost", () => {
     const result = resolveLiveBoardUrl({
       ...base,
       appUrl: "http://localhost:3000",
-      browserOrigin: "http://192.168.1.4:3000",
+      browserOrigin: "https://pikol-board.vercel.app",
     });
 
-    expect(result.origin).toBe("http://192.168.1.4:3000");
+    expect(result.origin).toBe("https://pikol-board.vercel.app");
     expect(result.isUnreachableFromAnotherDevice).toBe(false);
     expect(result.warning).toBeNull();
   });
@@ -106,11 +106,11 @@ describe("production never encodes localhost", () => {
   it("accepts a LAN origin as the configured value", () => {
     const result = resolveLiveBoardUrl({
       ...base,
-      appUrl: "http://192.168.1.4:3000",
+      appUrl: "https://pikol-board.vercel.app",
       browserOrigin: "http://localhost:3000",
     });
 
-    expect(result.url).toBe(`http://192.168.1.4:3000/live/${base.publicToken}`);
+    expect(result.url).toBe(`https://pikol-board.vercel.app/live/${base.publicToken}`);
     expect(result.warning).toBeNull();
   });
 });
@@ -173,10 +173,10 @@ describe("an unusable QR is reported, never returned silently", () => {
     const result = resolveLiveBoardUrl({
       ...base,
       appUrl: "http://0.0.0.0:3000",
-      browserOrigin: "http://192.168.1.4:3000",
+      browserOrigin: "https://pikol-board.vercel.app",
     });
 
-    expect(result.url).toBe(`http://192.168.1.4:3000/live/${base.publicToken}`);
+    expect(result.url).toBe(`https://pikol-board.vercel.app/live/${base.publicToken}`);
     expect(result.warning).toBeNull();
   });
 });
@@ -191,7 +191,7 @@ describe("host classification", () => {
     ["http://[::]:3000", true],
     ["0.0.0.0", true],
     ["::", true],
-    ["http://192.168.1.4:3000", false],
+    ["https://pikol-board.vercel.app", false],
     ["http://10.0.0.7:3000", false],
     ["http://172.20.3.4:3000", false],
     ["https://pickle.example.com", false],
