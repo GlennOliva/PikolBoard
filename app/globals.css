@@ -66,3 +66,93 @@
     @apply bg-background text-foreground;
   }
 }
+
+@layer components {
+  .neo-focus {
+    @apply focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#2196F3] focus-visible:ring-offset-2 focus-visible:ring-offset-[#FFFDF2] dark:focus-visible:ring-[#FFDB58] dark:focus-visible:ring-offset-[#111111];
+  }
+
+  .neo-nav-link,
+  .neo-footer-link {
+    @apply neo-focus cursor-pointer text-sm font-black transition-all duration-150;
+  }
+
+  .neo-nav-link:hover,
+  .neo-footer-link:hover {
+    @apply -translate-y-0.5 text-[#FF6B6B];
+  }
+
+  .neo-button {
+    @apply neo-focus inline-flex min-h-12 cursor-pointer items-center gap-2 border-[3px] border-black px-5 py-3 text-center text-sm font-black uppercase tracking-wide text-black shadow-[5px_5px_0_#000] transition-all duration-150 dark:border-[#FFFDF2] dark:shadow-[5px_5px_0_#FFFDF2];
+  }
+
+  .neo-button:hover {
+    @apply -translate-x-0.5 -translate-y-0.5 shadow-[7px_7px_0_#000] dark:shadow-[7px_7px_0_#FFFDF2];
+  }
+
+  .neo-button:active {
+    @apply translate-x-1 translate-y-1 shadow-[1px_1px_0_#000] dark:shadow-[1px_1px_0_#FFFDF2];
+  }
+
+  .neo-button-yellow {
+    @apply bg-[#FFDB58];
+  }
+
+  .neo-button-red {
+    @apply bg-[#FF6B6B];
+  }
+
+  .neo-button-cream {
+    @apply bg-[#FFFDF2];
+  }
+
+  .neo-icon-button {
+    @apply neo-focus grid size-12 cursor-pointer place-items-center border-[3px] border-black bg-[#FFDB58] text-black shadow-[4px_4px_0_#000] transition-all duration-150 dark:border-[#FFFDF2] dark:shadow-[4px_4px_0_#FFFDF2];
+  }
+
+  .neo-icon-button:hover {
+    @apply -translate-x-0.5 -translate-y-0.5 shadow-[6px_6px_0_#000] dark:shadow-[6px_6px_0_#FFFDF2];
+  }
+
+  .neo-icon-button:active {
+    @apply translate-x-1 translate-y-1 shadow-none;
+  }
+
+  .neo-kicker {
+    @apply inline-block border-[3px] border-black px-3 py-1.5 text-xs font-black uppercase tracking-[0.18em] text-black shadow-[3px_3px_0_#000];
+  }
+
+  .neo-card {
+    @apply relative border-[3px] border-black bg-[#FFFDF2] p-6 shadow-[5px_5px_0_#000] transition-all duration-150 dark:border-[#FFFDF2] dark:bg-[#171717] dark:shadow-[5px_5px_0_#FFFDF2] sm:p-8;
+  }
+
+  .neo-card:hover {
+    @apply -translate-x-0.5 -translate-y-0.5 shadow-[8px_8px_0_#000] dark:shadow-[8px_8px_0_#FFFDF2];
+  }
+
+  .neo-social-label {
+    @apply grid size-11 place-items-center border-2 border-[#FFFDF2] text-[#FFFDF2]/65;
+  }
+}
+
+/* The application shell remains unchanged on every route except the landing page. */
+body:has(.landing-shell) > .site-header,
+body:has(.landing-shell) > .site-footer {
+  display: none;
+}
+
+body:has(.landing-shell) > main {
+  max-width: none;
+  padding: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .landing-shell *,
+  .landing-shell *::before,
+  .landing-shell *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
