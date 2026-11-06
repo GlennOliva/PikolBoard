@@ -51,7 +51,7 @@ describe("the encoded URL is always absolute", () => {
   });
 
   it("keeps a non-default port, which LAN addresses depend on", () => {
-    const { url } = resolveLiveBoardUrl({ ...base, appUrl: "https://pikol-board.vercel.app" });
+    const { url } = resolveLiveBoardUrl({ ...base, appUrl: "http://192.168.1.20:3000" });
     expect(new URL(url).port).toBe("3000");
   });
 

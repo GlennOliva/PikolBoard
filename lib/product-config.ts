@@ -7,13 +7,13 @@
  */
 
 export const productConfig = {
-  name: "PickleBoard",
-  shortName: "PickleBoard",
-  tagline: "Open-play queues, live courts, and honest leaderboards",
+  name: "PikolGo",
+  shortName: "PikolGo",
+  tagline: "Run the courts. Keep the line moving.",
   description:
-    "PickleBoard runs open-play pickleball: check players in, let the matchmaker build fair games, track every score, and share a live court view with a link or QR code.",
-  organization: "PickleBoard",
-  twitter: "@pickleboard",
+    "PikolGo runs open-play pickleball: check players in, let the matchmaker build fair games, track every score, and share a live court view with a link or QR code.",
+  organization: "PikolGo",
+  twitter: "@pikolgo",
   /** Minimum comfortable touch target, in pixels. */
   touchTargetPx: 44,
 } as const;

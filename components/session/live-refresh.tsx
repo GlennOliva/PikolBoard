@@ -31,8 +31,12 @@ export function LiveRefresh({
 
   useEffect(() => {
     const supabase = createClient();
+    const isVisible = () => document.visibilityState !== "hidden";
 
     const bump = () => {
+      // A hidden organizer tab does not need every change; the visibility
+      // handler below performs one refresh when it is looked at again.
+      if (!isVisible()) return;
       if (pending.current) return;
       pending.current = true;
       // Wait a beat so a burst of row changes turns into one repaint.
@@ -95,9 +99,15 @@ export function LiveRefresh({
     // the screen still updates rather than silently going stale.
     const poll = setInterval(bump, intervalMs);
 
+    const onVisibilityChange = () => {
+      if (isVisible()) bump();
+    };
+    document.addEventListener("visibilitychange", onVisibilityChange);
+
     return () => {
       clearInterval(poll);
       if (timer.current) clearTimeout(timer.current);
+      document.removeEventListener("visibilitychange", onVisibilityChange);
       supabase.removeChannel(channel);
     };
   }, [sessionId, intervalMs, router]);

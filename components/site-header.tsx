@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Suspense } from "react";
 import { AuthButton } from "@/components/auth-button";
+import { ProductMark } from "@/components/product-mark";
 import { ThemeSwitcher } from "@/components/theme-switcher";
 import { hasEnvVars } from "@/lib/utils";
 import { productConfig } from "@/lib/product-config";
@@ -19,19 +20,16 @@ export function SiteHeader() {
             href="/"
             className="flex items-center gap-2 font-semibold tracking-tight"
           >
-            <span
-              aria-hidden
-              className="grid size-7 place-items-center rounded-md bg-primary text-xs font-bold text-primary-foreground"
-            >
-              PB
+            <span className="grid size-7 place-items-center rounded-md bg-primary text-primary-foreground">
+              <ProductMark className="size-5" />
             </span>
             <span>{productConfig.name}</span>
           </Link>
           <Link
-            href="/protected"
+            href="/clubs"
             className="hidden text-sm text-muted-foreground transition-colors hover:text-foreground sm:inline"
           >
-            Dashboard
+            My clubs
           </Link>
         </nav>
 

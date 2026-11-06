@@ -6,10 +6,7 @@ import { Radio } from "lucide-react";
 import { FormError } from "@/components/forms/form-error";
 import { SubmitButton } from "@/components/forms/submit-button";
 import { Button } from "@/components/ui/button";
-import {
-  endSessionAction,
-  startSessionAction,
-} from "@/app/actions/session-actions";
+import { endSessionAction } from "@/app/actions/session-actions";
 
 import {
   idleState,
@@ -17,9 +14,8 @@ import {
 } from "@/app/actions/session-action-state";
 
 /**
- * Start/end controls. The session is created in draft, so the organizer
- * explicitly starts it once the roster is in; ending is destructive enough to
- * ask for confirmation in the UI.
+ * End-session control. Starting lives in the setup card beside the roster, so
+ * the organizer does not see two competing Start buttons.
  */
 export function SessionControls({
   sessionId,
@@ -31,30 +27,17 @@ export function SessionControls({
   canManage: boolean;
 }) {
   const router = useRouter();
-  const [start, startAction] = useActionState<ActionState, FormData>(
-    startSessionAction,
-    idleState,
-  );
   const [end, endAction] = useActionState<ActionState, FormData>(
     endSessionAction,
     idleState,
   );
   const [confirmEnd, setConfirmEnd] = useState(false);
-  const [browserOrigin, setBrowserOrigin] = useState("");
 
-  // The server cannot know which address the organizer is looking at, so it
-  // needs the browser origin to build a scannable link. This is the same value
-  // the QR dialog prefers as a fallback, which keeps one set of rules for what
-  // counts as a reachable URL.
-  useEffect(() => {
-    setBrowserOrigin(window.location.origin);
-  }, []);
-
-  // The actions revalidate this path; refresh the router too so the ladder and
+  // The action revalidates this path; refresh the router too so the ladder and
   // queue repaint without a full page load.
   useEffect(() => {
-    if (start.ok || end.ok) router.refresh();
-  }, [start, end, router]);
+    if (end.ok) router.refresh();
+  }, [end, router]);
 
   if (!canManage) {
     return (
@@ -69,12 +52,9 @@ export function SessionControls({
   return (
     <div className="flex flex-wrap items-center gap-3">
       {status === "draft" ? (
-        <form action={startAction} className="flex items-center gap-2">
-          <input type="hidden" name="sessionId" value={sessionId} />
-          <input type="hidden" name="browserOrigin" value={browserOrigin} />
-          <FormError state={start} />
-          <SubmitButton pendingLabel="Starting…">Start session</SubmitButton>
-        </form>
+        <p className="text-sm text-muted-foreground">
+          Add the roster below, then start the session.
+        </p>
       ) : null}
 
       {status === "active" ? (

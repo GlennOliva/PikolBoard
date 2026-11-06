@@ -18,7 +18,6 @@ import type {
   Session,
   SessionPlayer,
   SessionStanding,
-  SupabaseClient,
 } from "./types";
 
 /**
@@ -57,7 +56,6 @@ export type {
   Session,
   SessionPlayer,
   SessionStanding,
-  SupabaseClient,
 } from "./types";
 
 /** Thrown when a query fails so callers can surface a real message. */
@@ -132,17 +130,19 @@ export async function getClubBySlug(
   slug: string,
 ): Promise<ClubWithMembership | null> {
   const supabase = await createClient();
-  const viewerId = await getViewerId();
 
-  const { data, error } = await supabase
-    .from("clubs")
-    .select("*")
-    .eq("slug", slug)
-    .maybeSingle();
+  // The club read and the viewer lookup are independent, so do not spend two
+  // network round trips discovering that. Membership still has to wait for the
+  // club id.
+  const [clubRes, viewerRes] = await Promise.all([
+    supabase.from("clubs").select("*").eq("slug", slug).maybeSingle(),
+    supabase.auth.getUser(),
+  ]);
 
-  fail(error);
-  if (!data) return null;
+  fail(clubRes.error);
+  if (!clubRes.data) return null;
 
+  const viewerId = viewerRes.data.user?.id ?? null;
   let viewer_role: ClubWithMembership["viewer_role"] = null;
   let viewer_status: ClubWithMembership["viewer_status"] = null;
 
@@ -150,31 +150,30 @@ export async function getClubBySlug(
     const { data: membership } = await supabase
       .from("club_members")
       .select("role, status")
-      .eq("club_id", data.id)
+      .eq("club_id", clubRes.data.id)
       .eq("user_id", viewerId)
       .maybeSingle();
     viewer_role = membership?.role ?? null;
     viewer_status = membership?.status ?? null;
   }
 
-  return { ...(data as ClubWithMembership), viewer_role, viewer_status };
+  return { ...(clubRes.data as ClubWithMembership), viewer_role, viewer_status };
 }
 
 export async function getClubById(
   clubId: string,
 ): Promise<ClubWithMembership | null> {
   const supabase = await createClient();
-  const viewerId = await getViewerId();
 
-  const { data, error } = await supabase
-    .from("clubs")
-    .select("*")
-    .eq("id", clubId)
-    .maybeSingle();
+  const [clubRes, viewerRes] = await Promise.all([
+    supabase.from("clubs").select("*").eq("id", clubId).maybeSingle(),
+    supabase.auth.getUser(),
+  ]);
 
-  fail(error);
-  if (!data) return null;
+  fail(clubRes.error);
+  if (!clubRes.data) return null;
 
+  const viewerId = viewerRes.data.user?.id ?? null;
   let viewer_role: ClubWithMembership["viewer_role"] = null;
   let viewer_status: ClubWithMembership["viewer_status"] = null;
 
@@ -189,7 +188,7 @@ export async function getClubById(
     viewer_status = membership?.status ?? null;
   }
 
-  return { ...(data as ClubWithMembership), viewer_role, viewer_status };
+  return { ...(clubRes.data as ClubWithMembership), viewer_role, viewer_status };
 }
 
 /**
@@ -341,12 +340,12 @@ export async function getSessionBundle(
       .order("court_number", { ascending: true }),
     supabase
       .from("session_players")
-      .select("*, players(display_name, skill_level)")
+      .select("*, players(display_name, skill_level, division)")
       .eq("session_id", sessionId)
       .order("queue_position", { ascending: true, nullsFirst: false }),
     supabase
       .from("matches")
-      .select("*, courts(court_number, name)")
+      .select("*, courts(court_number, name), match_players(*, players(display_name))")
       .eq("session_id", sessionId)
       // The two queue stages are included so the organizer can see and edit
       // lineups that have no court yet. They are harmless to the court grid
@@ -359,7 +358,9 @@ export async function getSessionBundle(
   fail(rosterRes.error);
   fail(matchesRes.error);
 
-  const matches = await attachMatchPlayers(supabase, matchesRes.data ?? []);
+  const matches = mapMatchesWithPlayers(
+    (matchesRes.data ?? []) as Array<Record<string, unknown>>,
+  );
 
   const matchByCourt = new Map<string, MatchWithPlayers>();
   for (const match of matches) {
@@ -380,15 +381,17 @@ export async function getSessionBundle(
       const player = row.players as unknown as {
         display_name: string;
         skill_level: number;
+        division: string | null;
       } | null;
       const rest = omitKey(row, "players");
       return {
         ...(rest as Omit<
           SessionPlayer,
-          "display_name" | "skill_level" | "player_missing"
+          "display_name" | "skill_level" | "division" | "player_missing"
         >),
         display_name: player?.display_name ?? "Unknown",
         skill_level: player?.skill_level ?? 3,
+        division: player?.division ?? null,
         // The embed is a left join, so a null here means the session_players
         // row has no club player behind it. Flag it rather than letting the UI
         // show a roster entry the database cannot act on.
@@ -399,43 +402,43 @@ export async function getSessionBundle(
   };
 }
 
-/** Fetches the players for the given matches in one round trip. */
-async function attachMatchPlayers(
-  supabase: SupabaseClient,
+/**
+ * Flattens the nested match -> match_players -> players embed into the shape
+ * the session UI already expects. Doing this in one PostgREST request removes
+ * the follow-up `in("match_id", ids)` round trip that used to run for every
+ * session page and every history panel.
+ */
+function mapMatchesWithPlayers(
   matches: Array<Record<string, unknown>>,
-): Promise<MatchWithPlayers[]> {
-  if (matches.length === 0) return [];
-
-  const ids = matches.map((m) => m.id as string);
-  const { data, error } = await supabase
-    .from("match_players")
-    .select("*, players(display_name)")
-    .in("match_id", ids);
-
-  fail(error);
-
-  const byMatch = new Map<string, MatchPlayer[]>();
-  for (const row of data ?? []) {
-    const player = row.players as unknown as { display_name: string } | null;
-    const rest = omitKey(row, "players");
-    const entry = {
-      ...(rest as Omit<MatchPlayer, "display_name">),
-      display_name: player?.display_name ?? "Unknown",
-    } as MatchPlayer;
-    const list = byMatch.get(entry.match_id) ?? [];
-    list.push(entry);
-    byMatch.set(entry.match_id, list);
-  }
-
+): MatchWithPlayers[] {
   return matches.map((match) => {
     const court = match.courts as unknown as
       | { court_number: number; name: string | null }
       | null
       | undefined;
-    const rest = omitKey(match, "courts");
-    const players = (byMatch.get(match.id as string) ?? []).sort(
-      (a, b) => a.team_number - b.team_number || a.slot_number - b.slot_number,
-    );
+    const playerRows = (match.match_players ?? []) as Array<
+      Record<string, unknown>
+    >;
+
+    const players = playerRows
+      .map((row) => {
+        const player = row.players as unknown as {
+          display_name: string;
+        } | null;
+        const rest = omitKey(row, "players");
+        return {
+          ...(rest as Omit<MatchPlayer, "display_name">),
+          display_name: player?.display_name ?? "Unknown",
+        } as MatchPlayer;
+      })
+      .sort(
+        (a, b) =>
+          a.team_number - b.team_number || a.slot_number - b.slot_number,
+      );
+
+    const rest: Record<string, unknown> = { ...match };
+    delete rest.courts;
+    delete rest.match_players;
     return {
       ...(rest as Omit<Match, "players">),
       players,
@@ -452,14 +455,58 @@ export async function getSessionHistory(
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("matches")
-    .select("*, courts(court_number, name)")
+    .select("*, courts(court_number, name), match_players(*, players(display_name))")
     .eq("session_id", sessionId)
     .eq("status", "completed")
     .order("completed_at", { ascending: false })
     .limit(50);
 
   fail(error);
-  return attachMatchPlayers(supabase, (data ?? []) as Array<Record<string, unknown>>);
+  return mapMatchesWithPlayers(
+    (data ?? []) as Array<Record<string, unknown>>,
+  );
+}
+
+/**
+ * Everything the organizer session page needs. The bundle must resolve first
+ * because it supplies the club id, then the club, standings, history, and
+ * club-wide roster are fetched together. Before this helper the page awaited
+ * each of those in sequence, so the browser waited for four independent
+ * Supabase requests one after another.
+ */
+export interface SessionPageData {
+  bundle: SessionBundle;
+  club: ClubWithMembership | null;
+  standings: SessionStanding[];
+  history: MatchWithPlayers[];
+  /** Active club players who are not already on this session. */
+  availablePlayers: Player[];
+}
+
+export async function getSessionPageData(
+  sessionId: string,
+): Promise<SessionPageData | null> {
+  const bundle = await getSessionBundle(sessionId);
+  if (!bundle) return null;
+
+  const [club, standings, history, clubPlayers] = await Promise.all([
+    getClubById(bundle.session.club_id),
+    getSessionStandings(sessionId),
+    getSessionHistory(sessionId),
+    getRoster(bundle.session.club_id),
+  ]);
+
+  const onSession = new Set(bundle.roster.map((player) => player.player_id));
+
+  return {
+    bundle,
+    club,
+    standings,
+    history,
+    availablePlayers: clubPlayers.filter(
+      (player) => player.is_active && !onSession.has(player.id),
+    ),
+  };
 }
 
 // ---------------------------------------------------------------------------

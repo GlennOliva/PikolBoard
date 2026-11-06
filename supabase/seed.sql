@@ -1,4 +1,4 @@
--- Fictional demo data for PickleBoard.
+-- Fictional demo data for PikolGo.
 --
 -- Safe to run repeatedly: every insert is idempotent.
 --
@@ -32,7 +32,7 @@ declare
 begin
   if v_owner is null then
     raise notice
-      'Skipping PickleBoard seed: organizer_id not set. See the header of this file.';
+      'Skipping PikolGo seed: organizer_id not set. See the header of this file.';
     return;
   end if;
 
@@ -273,6 +273,6 @@ begin
   end if;
 
   raise notice
-    'PickleBoard seed complete: club %, completed session %, live session %.',
+    'PikolGo seed complete: club %, completed session %, live session %.',
     v_club, v_session, v_active;
 end $$;

@@ -18,7 +18,9 @@ import {
   Zap,
 } from "lucide-react";
 import { MobileMenu } from "@/components/landing/mobile-menu";
+import { ProductMark } from "@/components/product-mark";
 import { ThemeSwitcher } from "@/components/theme-switcher";
+import { productConfig } from "@/lib/product-config";
 
 const features = [
   {
@@ -172,12 +174,12 @@ const tiers = [
 function BrandMark() {
   return (
     <span className="inline-flex items-center gap-2.5">
-      <span className="relative grid size-10 place-items-center border-[3px] border-black bg-[#FFDB58] shadow-[3px_3px_0_#000] dark:border-[#FFFDF2] dark:shadow-[3px_3px_0_#FFFDF2]">
-        <span className="size-5 rounded-full border-2 border-black bg-[#4ECDC4]" />
-        <span className="absolute left-[13px] top-[8px] size-1 rounded-full bg-black" />
-        <span className="absolute bottom-[8px] right-[9px] size-1 rounded-full bg-black" />
+      <span className="relative grid size-10 place-items-center border-[3px] border-black bg-[#FFDB58] text-black shadow-[3px_3px_0_#000] dark:border-[#FFFDF2] dark:shadow-[3px_3px_0_#FFFDF2]">
+        <ProductMark className="size-6" />
       </span>
-      <span className="text-xl font-black tracking-[-0.04em]">PickleBoard</span>
+      <span className="text-xl font-black tracking-[-0.04em]">
+        {productConfig.name}
+      </span>
     </span>
   );
 }
@@ -194,7 +196,7 @@ function LandingHeader() {
   return (
     <header className="sticky top-0 z-50 border-b-[3px] border-black bg-[#FFFDF2] text-black dark:border-[#FFFDF2] dark:bg-[#111111] dark:text-[#FFFDF2]">
       <div className="mx-auto flex min-h-[76px] max-w-7xl items-center justify-between gap-6 px-4 sm:px-6 lg:px-8">
-        <Link href="/" className="neo-focus cursor-pointer transition-all" aria-label="PickleBoard home">
+        <Link href="/" className="neo-focus cursor-pointer transition-all" aria-label={`${productConfig.name} home`}>
           <BrandMark />
         </Link>
         <nav aria-label="Main navigation" className="hidden items-center gap-5 md:flex">
@@ -224,7 +226,7 @@ function LandingHeader() {
 
 function HeroIllustration() {
   return (
-    <div className="relative mx-auto w-full max-w-[590px] pb-5 pr-2 pt-4" aria-label="PickleBoard product illustration" role="img">
+    <div className="relative mx-auto w-full max-w-[590px] pb-5 pr-2 pt-4" aria-label={`${productConfig.name} product illustration`} role="img">
       <div className="absolute -left-3 top-0 size-16 rotate-[-9deg] border-[3px] border-black bg-[#FF6B6B] dark:border-[#FFFDF2]" aria-hidden="true" />
       <div className="absolute -right-1 bottom-0 size-20 rotate-6 border-[3px] border-black bg-[#FFDB58] dark:border-[#FFFDF2]" aria-hidden="true" />
       <div className="relative border-[3px] border-black bg-[#2196F3] p-3 shadow-[8px_8px_0_#000] dark:border-[#FFFDF2] dark:shadow-[8px_8px_0_#FFFDF2] sm:p-5">
@@ -457,7 +459,7 @@ function LandingFooter() {
         </div>
       </div>
       <div className="mx-auto mt-12 flex max-w-7xl flex-col gap-3 border-t-2 border-[#FFFDF2] pt-5 text-sm font-bold sm:flex-row sm:items-center sm:justify-between">
-        <p>© 2026 PickleBoard. All rights reserved.</p>
+        <p>© 2026 {productConfig.name}. All rights reserved.</p>
         <p className="text-[#FFFDF2]/65">Built to keep every court moving.</p>
       </div>
     </footer>
@@ -608,7 +610,7 @@ export function LandingPage() {
           <div className="absolute -right-10 bottom-10 h-44 w-72 rotate-[-8deg] border-[4px] border-black bg-[#2196F3]" aria-hidden="true"><span className="absolute inset-y-0 left-1/2 border-l-[4px] border-white" /></div>
           <div className="relative z-10 mx-auto max-w-4xl border-[3px] border-black bg-[#FF6B6B] p-7 text-center shadow-[9px_9px_0_#000] sm:p-12">
             <h2 id="cta-heading" className="text-4xl font-black tracking-[-0.045em] sm:text-5xl lg:text-6xl">Ready to make open play easier?</h2>
-            <p className="mx-auto mt-5 max-w-2xl text-lg font-bold sm:text-xl">Create your PickleBoard club, check in your players, and keep every court moving.</p>
+            <p className="mx-auto mt-5 max-w-2xl text-lg font-bold sm:text-xl">Create your {productConfig.name} club, check in your players, and keep every court moving.</p>
             <div className="mt-8 flex flex-col justify-center gap-4 sm:flex-row">
               <Link href="/auth/sign-up" className="neo-button bg-black text-white shadow-[5px_5px_0_#FFFDF2] hover:shadow-[7px_7px_0_#FFFDF2]">Create Your Club <ArrowRight className="size-5" aria-hidden="true" /></Link>
               <Link href="/auth/login" className="neo-button bg-[#FFFDF2] text-black">Sign In</Link>

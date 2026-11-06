@@ -115,12 +115,26 @@ export function timerText(params: {
   startedAt: string | null | undefined;
   completedAt?: string | null;
   status: MatchTimingStatus;
-  now: number;
+  /**
+   * Null means "the browser has not read its clock yet". It is deliberately not
+   * treated as zero: a playing match with a usable start shows 00:00 for that
+   * first hydration frame, while a completed match still uses its persisted
+   * start/end pair. Passing Date.now() here during render makes the server and
+   * client disagree and triggers a hydration error.
+   */
+  now: number | null;
 }): string | null {
   const { status } = params;
   if (status === "cancelled") return "Cancelled";
   if (status === "staged") return null;
-  return formatElapsed(timerValue(params));
+
+  if (status === "playing" && params.now === null) {
+    return parseTimestamp(params.startedAt) === null
+      ? TIMER_UNAVAILABLE
+      : formatElapsed(0);
+  }
+
+  return formatElapsed(timerValue({ ...params, now: params.now ?? 0 }));
 }
 
 /**

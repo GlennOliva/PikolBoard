@@ -7,14 +7,14 @@ Stock `create-next-app --example with-supabase` (Next.js 16.3.8, React 19.3, Tai
 ```bash
 npm run dev                 # localhost:3000
 npm run build               # also runs tsc; prints "Cache Components enabled"
-npm run lint                # eslint .  — SEE BASELINE BELOW, fails on a clean checkout
+npm run lint                # eslint .  — web app; `mobile/` has its own `expo lint`
 npx tsc --noEmit            # clean, use this as the typecheck gate
 npx supabase <cmd>          # CLI is NOT installed globally, always go through npx
 ```
 
-No test framework, no formatter, no CI, no pre-commit hooks. Don't invent a test command or add a formatter config. Verification = `npx tsc --noEmit` + `npm run build`.
+Vitest + Testing Library are configured (`npm test`, jsdom for component tests). No formatter, no CI, no pre-commit hooks. Don't invent another test command or add a formatter config. Verification = `npx tsc --noEmit` + `npm run build`.
 
-**Lint baseline:** `npm run lint` fails out of the box with 65 pre-existing errors — 64 from generated `.next/types/{validator,routes}.d.ts` (`eslint.config.mjs` has no ignore for `.next/`) and 1 real one at `tailwind.config.ts:62` (`require("tailwindcss-animate")`). Ignore those. Only errors in files you authored are yours.
+**Lint scope:** `eslint.config.mjs` ignores `.next/**` and `mobile/**`; the Expo app has its own `npm run lint` (`expo lint`). Root `npm run lint` should pass. Do not lint `mobile/` with the web app's rules.
 
 ## Next.js 16 specifics
 
@@ -26,14 +26,14 @@ No test framework, no formatter, no CI, no pre-commit hooks. Don't invent a test
 ## Supabase
 
 - Env vars: `NEXT_PUBLIC_SUPABASE_URL` + `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` (the new publishable-key name, not `..._ANON_KEY`). `.env.local` is committed-workflow-ignored but present and points at a **cloud** project — there is no local Supabase stack running.
-- `supabase/` is only `supabase init` output (`project_id = "pickleboard"`). **There are no migrations and no tables yet** — any schema work is greenfield; do not assume a table exists.
+- `supabase/` has the full migration chain (`project_id = "pickleboard"`): schema, RPCs, RLS, live-board views, lineups, and player management. Apply new changes forward-only; do not edit applied migrations.
 - `hasEnvVars` (`lib/utils.ts`) short-circuits the proxy and swaps in tutorial UI when env is missing, so a misconfigured app renders as a working demo instead of erroring. Check `.env.local` before debugging phantom "logged out" behavior.
 
 ### Invariants that silently break sessions
 
 - Never store a Supabase client in a module-level global (Fluid compute). Create a new one per call/req — see the comment in `lib/supabase/server.ts`.
 - In `updateSession`, put **no code between `createServerClient(...)` and `supabase.auth.getClaims()`**, and **return the `supabaseResponse` object** as-is. Deviating causes random logouts.
-- Server Components: use `@/lib/supabase/server` (`createClient`, async). Client Components: `@/lib/supabase/client` (sync). All auth mutations live in `"use client"` form components — there are **no server actions** in this repo; don't assume the `app/auth/**/actions.ts` convention.
+- Server Components: use `@/lib/supabase/server` (`createClient`, async). Client Components: `@/lib/supabase/client` (sync). Auth mutations live in `"use client"` form components. Club/session/match writes use the server actions in `app/actions/*`; there are no `app/auth/**/actions.ts` files.
 - Auth gating is done in the proxy, not per-page: everything except `/`, `/login*`, and `/auth*` requires a session and redirects to `/auth/login`. `app/protected/` is just a demo route.
 
 ## Conventions

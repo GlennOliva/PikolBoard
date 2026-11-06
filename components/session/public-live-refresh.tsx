@@ -35,8 +35,11 @@ export function PublicLiveRefresh({
 
   useEffect(() => {
     const supabase = createClient();
+    const isVisible = () => document.visibilityState !== "hidden";
 
     const bump = () => {
+      // Phones in a pocket should not poll the venue wifi every 20 seconds.
+      if (!isVisible()) return;
       if (pending.current) return;
       pending.current = true;
       timer.current = setTimeout(() => {
@@ -79,9 +82,9 @@ export function PublicLiveRefresh({
       if (subscribed) {
         // Re-fetch after reconnecting because changes emitted while the socket
         // was down cannot be replayed by this lightweight subscription.
-        if (connectedOnce.current) router.refresh();
+        if (connectedOnce.current && isVisible()) router.refresh();
         connectedOnce.current = true;
-        setLastUpdated(new Date());
+        if (isVisible()) setLastUpdated(new Date());
       }
     });
 
@@ -89,9 +92,15 @@ export function PublicLiveRefresh({
     // blocked, so the board must still advance on its own.
     const poll = setInterval(bump, intervalMs);
 
+    const onVisibilityChange = () => {
+      if (isVisible()) bump();
+    };
+    document.addEventListener("visibilitychange", onVisibilityChange);
+
     return () => {
       clearInterval(poll);
       if (timer.current) clearTimeout(timer.current);
+      document.removeEventListener("visibilitychange", onVisibilityChange);
       supabase.removeChannel(channel);
     };
   }, [sessionId, intervalMs, router]);

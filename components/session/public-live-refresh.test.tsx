@@ -88,6 +88,27 @@ describe("PublicLiveRefresh", () => {
     expect(mocks.refresh).toHaveBeenCalledTimes(2);
   });
 
+  it("pauses network refreshes while the tab is hidden", () => {
+    render(<PublicLiveRefresh sessionId="session-1" />);
+    act(() => mocks.statusCallback?.("SUBSCRIBED"));
+
+    const visibility = vi
+      .spyOn(document, "visibilityState", "get")
+      .mockReturnValue("hidden");
+
+    const matches = mocks.subscriptions.find((item) => item.table === "matches")!;
+    act(() => matches.callback());
+    act(() => vi.advanceTimersByTime(400));
+    expect(mocks.refresh).not.toHaveBeenCalled();
+
+    visibility.mockReturnValue("visible");
+    act(() => void document.dispatchEvent(new Event("visibilitychange")));
+    act(() => vi.advanceTimersByTime(400));
+    expect(mocks.refresh).toHaveBeenCalledTimes(1);
+
+    visibility.mockRestore();
+  });
+
   it("cleans up its one channel and all timers on unmount", () => {
     const { unmount } = render(<PublicLiveRefresh sessionId="session-1" />);
     unmount();

@@ -10,16 +10,12 @@ import { MatchHistory } from "@/components/session/match-history";
 import { Matchmaker } from "@/components/session/matchmaker";
 import { QueuePanel } from "@/components/session/queue-panel";
 import { SessionControls } from "@/components/session/session-controls";
+import { SessionSetup } from "@/components/session/session-setup";
 import { StandingsTable } from "@/components/session/standings-table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import {
-  getClubById,
-  getSessionBundle,
-  getSessionHistory,
-  getSessionStandings,
-} from "@/lib/db/queries";
+import { getSessionPageData } from "@/lib/db/queries";
 import { canShowPlayerLiveQr } from "@/lib/domain/live-board/live-board-url";
 import { canManageClub } from "@/lib/permissions";
 import { formatSessionWindow } from "@/lib/format";
@@ -44,21 +40,15 @@ async function LiveSession({
   params: Promise<{ sessionId: string }>;
 }) {
   const { sessionId } = await params;
-  const bundle = await getSessionBundle(sessionId);
-  if (!bundle) notFound();
+  const data = await getSessionPageData(sessionId);
+  if (!data) notFound();
 
+  const { bundle, club, standings, history, availablePlayers } = data;
   const { session, courts, roster, matches } = bundle;
-  const club = await getClubById(session.club_id);
-  // Read under the signed-in user: session_standings is security_invoker, so
-  // RLS decides what this returns. It is deliberately not publish-gated, so the
-  // organizer sees the board even while the session is still private.
-  const standings = await getSessionStandings(sessionId);
-  // Finished games with their final durations. Separate from the bundle because
-  // the bundle only carries the matches still attached to a court, and a
-  // completed match gives its court back.
-  const history = await getSessionHistory(sessionId);
 
   const canManage = club ? canManageClub(club) : false;
+  const rosterEditable =
+    canManage && (session.status === "draft" || session.status === "active");
 
   /*
    * Keyed by players.id, not session_players.id. The lineup RPCs take the club
@@ -170,10 +160,14 @@ async function LiveSession({
           <h2 id="queue" className="sr-only">
             Queue and attendance
           </h2>
+          {canManage && session.status === "draft" ? (
+            <SessionSetup session={session} roster={roster} />
+          ) : null}
           <QueuePanel
             sessionId={session.id}
             roster={roster}
-            canManage={canManage}
+            availablePlayers={availablePlayers}
+            canManage={rosterEditable}
           />
         </section>
       </div>

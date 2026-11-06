@@ -12,8 +12,8 @@ export function SiteFooter() {
           <Link href="/" className="hover:text-foreground">
             Home
           </Link>
-          <Link href="/protected" className="hover:text-foreground">
-            Dashboard
+          <Link href="/clubs" className="hover:text-foreground">
+            My clubs
           </Link>
         </nav>
       </div>

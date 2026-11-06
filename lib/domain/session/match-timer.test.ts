@@ -159,6 +159,23 @@ describe("timerText", () => {
     ).toBe("08:44");
   });
 
+  it("renders a stable first frame before the browser clock is read", () => {
+    expect(
+      timerText({ startedAt: iso(BASE), status: "playing", now: null }),
+    ).toBe("00:00");
+  });
+
+  it("still uses persisted timestamps for a completed match before hydration", () => {
+    expect(
+      timerText({
+        startedAt: iso(BASE),
+        completedAt: iso(BASE + 8_420),
+        status: "completed",
+        now: null,
+      }),
+    ).toBe("00:08");
+  });
+
   it("shows the final duration once completed", () => {
     expect(
       timerText({

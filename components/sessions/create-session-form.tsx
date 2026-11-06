@@ -105,10 +105,17 @@ export function CreateSessionForm({ clubId }: { clubId: string }) {
               {m.label}
             </option>
           ))}
+          <option value="social_mix" disabled>
+            Social Mix (coming soon)
+          </option>
         </select>
         {modeHint ? (
           <p className="text-xs text-muted-foreground">{modeHint}</p>
         ) : null}
+        <p className="text-xs text-muted-foreground">
+          Social Mix is not available yet. Balanced is the closest tested mode
+          for mixed social play.
+        </p>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">

@@ -88,7 +88,7 @@ export function MatchTimer({
   const now = useMatchClock(startedAt, status);
   useReportUntimedMatch(startedAt, status);
 
-  const text = timerText({ startedAt, completedAt, status, now: now ?? Date.now() });
+  const text = timerText({ startedAt, completedAt, status, now });
   if (text === null) return null;
 
   return (
@@ -121,7 +121,7 @@ export function MatchTimerLabeled({
   const now = useMatchClock(startedAt, status);
   useReportUntimedMatch(startedAt, status);
 
-  const text = timerText({ startedAt, completedAt, status, now: now ?? Date.now() });
+  const text = timerText({ startedAt, completedAt, status, now });
   if (text === null) return null;
 
   return (

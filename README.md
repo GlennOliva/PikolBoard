@@ -1,6 +1,6 @@
-# PickleBoard
+# PikolGo
 
-PickleBoard runs open-play pickleball sessions: check players in, build fair
+PikolGo runs open-play pickleball sessions: check players in, build fair
 matches, manage courts and scores, and share a read-only Live Board with every
 player through one QR code.
 
@@ -54,7 +54,7 @@ npm run dev -- --hostname 0.0.0.0
 Connect the phone and computer to the same Wi-Fi, open an active public session,
 choose **Show QR Code**, and scan. If the address is correct but the phone cannot
 connect, the operating-system firewall or Wi-Fi client isolation may need manual
-configuration. PickleBoard does not change firewall settings.
+configuration. PikolGo does not change firewall settings.
 
 ## Setup
 

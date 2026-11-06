@@ -1,7 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 
 /**
- * Typed row shapes for the PickleBoard schema.
+ * Typed row shapes for the PikolGo schema.
  *
  * These are hand-written rather than generated so the app compiles without a
  * `supabase gen types` step. When a column changes, this file is the one place
@@ -153,6 +153,7 @@ export interface SessionPlayer {
   last_enqueued_at: string | null;
   display_name: string;
   skill_level: number;
+  division: string | null;
   /**
    * True when the session_players row did not resolve to a club player, so the
    * roster entry is dangling. The FK cascade makes this rare, but it needs its

@@ -543,10 +543,153 @@ export async function addSessionPlayersAction(
   }
 }
 
+const addPlayersToSessionSchema = z.object({
+  sessionId: z.string().uuid(),
+  playerIds: z.array(z.string().uuid()).min(1),
+  checkIn: z.boolean(),
+});
+
+export async function addPlayersToSessionAction(
+  _prev: ActionState,
+  formData: FormData,
+): Promise<ActionState> {
+  const parsed = addPlayersToSessionSchema.safeParse({
+    sessionId: formData.get("sessionId"),
+    playerIds: formData.getAll("playerIds"),
+    checkIn: formData.get("checkIn") === "on",
+  });
+
+  if (!parsed.success) {
+    return { error: "Pick at least one player", ok: false };
+  }
+
+  try {
+    await requireUser();
+    const added = (await rpc("add_players_to_session", {
+      p_session_id: parsed.data.sessionId,
+      p_player_ids: parsed.data.playerIds,
+      p_check_in: parsed.data.checkIn,
+    })) as number | null;
+
+    revalidatePath(`/sessions/${parsed.data.sessionId}`);
+    return {
+      error: null,
+      ok: true,
+      id: added === null ? undefined : String(added),
+    };
+  } catch (error) {
+    return { error: messageFrom(error), ok: false };
+  }
+}
+
+const createSessionPlayerSchema = z.object({
+  sessionId: z.string().uuid(),
+  displayName: z.string().trim().min(1).max(60),
+  skillLevel: z.coerce.number().int().min(1).max(6),
+  division: z.string().max(40).optional(),
+  checkIn: z.boolean(),
+});
+
+export async function createSessionPlayerAction(
+  _prev: ActionState,
+  formData: FormData,
+): Promise<ActionState> {
+  const parsed = createSessionPlayerSchema.safeParse({
+    sessionId: formData.get("sessionId"),
+    displayName: formData.get("displayName"),
+    skillLevel: formData.get("skillLevel"),
+    division: formData.get("division") || undefined,
+    checkIn: formData.get("checkIn") === "on",
+  });
+
+  if (!parsed.success) {
+    return {
+      error: parsed.error.issues[0]?.message ?? "Check the player details",
+      ok: false,
+    };
+  }
+
+  try {
+    await requireUser();
+    const id = await rpc("create_player_for_session", {
+      p_session_id: parsed.data.sessionId,
+      p_display_name: parsed.data.displayName,
+      p_skill_level: parsed.data.skillLevel,
+      p_division: parsed.data.division ?? null,
+      p_check_in: parsed.data.checkIn,
+    });
+
+    revalidatePath(`/sessions/${parsed.data.sessionId}`);
+    return { error: null, ok: true, id: String(id) };
+  } catch (error) {
+    return { error: messageFrom(error), ok: false };
+  }
+}
+
+const checkInSessionPlayersSchema = z.object({
+  sessionId: z.string().uuid(),
+  playerIds: z.array(z.string().uuid()).min(1),
+});
+
+export async function checkInSessionPlayersAction(
+  _prev: ActionState,
+  formData: FormData,
+): Promise<ActionState> {
+  const parsed = checkInSessionPlayersSchema.safeParse({
+    sessionId: formData.get("sessionId"),
+    playerIds: formData.getAll("playerIds"),
+  });
+
+  if (!parsed.success) {
+    return { error: "Pick at least one player", ok: false };
+  }
+
+  try {
+    await requireUser();
+    const checkedIn = (await rpc("check_in_session_players", {
+      p_session_id: parsed.data.sessionId,
+      p_player_ids: parsed.data.playerIds,
+    })) as number | null;
+
+    revalidatePath(`/sessions/${parsed.data.sessionId}`);
+    return {
+      error: null,
+      ok: true,
+      id: checkedIn === null ? undefined : String(checkedIn),
+    };
+  } catch (error) {
+    return { error: messageFrom(error), ok: false };
+  }
+}
+
 const sessionPlayerSchema = z.object({
   sessionId: z.string().uuid(),
   playerId: z.string().uuid(),
 });
+
+export async function removeSessionPlayerAction(
+  _prev: ActionState,
+  formData: FormData,
+): Promise<ActionState> {
+  const parsed = sessionPlayerSchema.safeParse({
+    sessionId: formData.get("sessionId"),
+    playerId: formData.get("playerId"),
+  });
+
+  if (!parsed.success) return { error: "Player not found", ok: false };
+
+  try {
+    await requireUser();
+    await rpc("remove_session_player", {
+      p_session_id: parsed.data.sessionId,
+      p_player_id: parsed.data.playerId,
+    });
+    revalidatePath(`/sessions/${parsed.data.sessionId}`);
+    return { error: null, ok: true, id: parsed.data.playerId };
+  } catch (error) {
+    return { error: messageFrom(error), ok: false };
+  }
+}
 
 export async function checkInAction(
   _prev: ActionState,
