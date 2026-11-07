@@ -60,6 +60,7 @@ describe("PikolGo design system", () => {
       "app/pikolgo_logo.png",
       "app/icon.png",
       "app/apple-icon.png",
+      "app/favicon.ico",
       "app/opengraph-image.png",
       "app/twitter-image.png",
     ]) {
@@ -71,6 +72,28 @@ describe("PikolGo design system", () => {
     const manifest = read("app/manifest.ts");
     expect(manifest).toContain('src: "/icon.png"');
     expect(manifest).toContain('src: "/apple-icon.png"');
+  });
+
+  it("publishes square PNG icons and a multi-size favicon", () => {
+    const pngDimensions = (path: string) => {
+      const buffer = readFileSync(resolve(root, path));
+      return [buffer.readUInt32BE(16), buffer.readUInt32BE(20)];
+    };
+
+    expect(pngDimensions("app/icon.png")).toEqual([512, 512]);
+    expect(pngDimensions("app/apple-icon.png")).toEqual([180, 180]);
+
+    const ico = readFileSync(resolve(root, "app/favicon.ico"));
+    expect(ico.readUInt16LE(0)).toBe(0);
+    expect(ico.readUInt16LE(2)).toBe(1);
+    const count = ico.readUInt16LE(4);
+    expect(count).toBeGreaterThanOrEqual(3);
+
+    const sizes = Array.from({ length: count }, (_, index) => {
+      const offset = 6 + index * 16;
+      return ico.readUInt8(offset) || 256;
+    });
+    expect(sizes).toEqual(expect.arrayContaining([16, 32, 48]));
   });
 
   it("documents the layout, z-index, accessibility, and responsive contracts", () => {
