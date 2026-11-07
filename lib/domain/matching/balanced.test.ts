@@ -305,6 +305,31 @@ describe("proposeBalanced", () => {
     const teamB = result.proposal.players.find((p) => p.playerId === "b")?.teamNumber;
     expect(teamA).toBe(teamB);
   });
+
+  it("never selects only one member of a locked pair", () => {
+    const candidates = queue([
+      ["a", 3],
+      ["b", 3],
+      ["c", 3],
+      ["d", 3],
+      ["e", 3],
+      ["f", 3],
+    ]).map((candidate) =>
+      candidate.id === "b"
+        ? { ...candidate, attendanceStatus: "break" as const }
+        : candidate,
+    );
+    const result = proposeBalanced(
+      candidates,
+      rules({ lockedPairs: [["a", "b"]] }),
+    );
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    const selected = result.proposal.players.map((player) => player.playerId);
+    expect(selected).not.toContain("a");
+    expect(selected).not.toContain("b");
+  });
 });
 
 describe("proposeSkillSeparated", () => {
@@ -412,5 +437,58 @@ describe("proposeSkillSeparated", () => {
     const second = proposeSkillSeparated(candidates, rules());
 
     expect(JSON.stringify(first)).toBe(JSON.stringify(second));
+  });
+
+  it("keeps a locked pair together while choosing a skill band", () => {
+    const candidates = queue([
+      ["a", 2],
+      ["b", 5],
+      ["c", 2],
+      ["d", 2],
+      ["e", 5],
+      ["f", 5],
+    ]);
+    const result = proposeSkillSeparated(
+      candidates,
+      rules({ lockedPairs: [["a", "b"]] }),
+    );
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    const selected = new Map(
+      result.proposal.players.map((player) => [
+        player.playerId,
+        player.teamNumber,
+      ]),
+    );
+    expect(selected.has("a")).toBe(selected.has("b"));
+    if (selected.has("a")) {
+      expect(selected.get("a")).toBe(selected.get("b"));
+    }
+  });
+
+  it("excludes both locked partners when one is unavailable", () => {
+    const candidates = queue([
+      ["a", 2],
+      ["b", 2],
+      ["c", 3],
+      ["d", 3],
+      ["e", 4],
+      ["f", 4],
+    ]).map((candidate) =>
+      candidate.id === "b"
+        ? { ...candidate, attendanceStatus: "checked_out" as const }
+        : candidate,
+    );
+    const result = proposeSkillSeparated(
+      candidates,
+      rules({ lockedPairs: [["a", "b"]] }),
+    );
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    const selected = result.proposal.players.map((player) => player.playerId);
+    expect(selected).not.toContain("a");
+    expect(selected).not.toContain("b");
   });
 });

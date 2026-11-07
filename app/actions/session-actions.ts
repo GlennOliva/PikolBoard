@@ -691,6 +691,78 @@ export async function removeSessionPlayerAction(
   }
 }
 
+const createPartnerLockSchema = z
+  .object({
+    sessionId: z.string().uuid(),
+    playerAId: z.string().uuid(),
+    playerBId: z.string().uuid(),
+  })
+  .refine((value) => value.playerAId !== value.playerBId, {
+    message: "Choose two different players",
+  });
+
+export async function createPartnerLockAction(
+  _prev: ActionState,
+  formData: FormData,
+): Promise<ActionState> {
+  const parsed = createPartnerLockSchema.safeParse({
+    sessionId: formData.get("sessionId"),
+    playerAId: formData.get("playerAId"),
+    playerBId: formData.get("playerBId"),
+  });
+
+  if (!parsed.success) {
+    return {
+      error: parsed.error.issues[0]?.message ?? "Choose two players",
+      ok: false,
+    };
+  }
+
+  try {
+    await requireUser();
+    const id = await rpc("create_partner_lock", {
+      p_session_id: parsed.data.sessionId,
+      p_player_a_id: parsed.data.playerAId,
+      p_player_b_id: parsed.data.playerBId,
+    });
+    revalidatePath(`/sessions/${parsed.data.sessionId}`);
+    return { error: null, ok: true, id: String(id) };
+  } catch (error) {
+    return { error: messageFrom(error), ok: false };
+  }
+}
+
+const releasePartnerLockSchema = z.object({
+  sessionId: z.string().uuid(),
+  lockId: z.string().uuid(),
+});
+
+export async function releasePartnerLockAction(
+  _prev: ActionState,
+  formData: FormData,
+): Promise<ActionState> {
+  const parsed = releasePartnerLockSchema.safeParse({
+    sessionId: formData.get("sessionId"),
+    lockId: formData.get("lockId"),
+  });
+
+  if (!parsed.success) {
+    return { error: "Partner lock not found", ok: false };
+  }
+
+  try {
+    await requireUser();
+    await rpc("release_partner_lock", {
+      p_session_id: parsed.data.sessionId,
+      p_lock_id: parsed.data.lockId,
+    });
+    revalidatePath(`/sessions/${parsed.data.sessionId}`);
+    return { error: null, ok: true, id: parsed.data.lockId };
+  } catch (error) {
+    return { error: messageFrom(error), ok: false };
+  }
+}
+
 export async function checkInAction(
   _prev: ActionState,
   formData: FormData,

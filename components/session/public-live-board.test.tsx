@@ -8,6 +8,7 @@ import type {
   PublicLiveSession,
   PublicLineupSection,
   PublicMatchLineupRow,
+  PublicPartnerLock,
   PublicSessionPresenceRow,
   PublicSessionStanding,
 } from "@/lib/db/types";
@@ -120,6 +121,15 @@ function queuedLineup(
 const upNext = [queuedLineup("up_next", 3, ["Uma", "Vic", "Wes", "Xena"])];
 const preparation = [queuedLineup("preparing", 4, ["Yara", "Zane", "Ana", "Bo"] )];
 
+const partnerLocks: PublicPartnerLock[] = [
+  {
+    display_name_a: "Alex",
+    skill_level_a: 3,
+    display_name_b: "Blair",
+    skill_level_b: 4,
+  },
+];
+
 const presence: PublicSessionPresenceRow[] = [
   {
     session_id: session.id,
@@ -186,6 +196,7 @@ function board(overrides: Partial<Parameters<typeof PublicLiveBoard>[0]> = {}) {
       preparation={preparation}
       presence={presence}
       standings={standings}
+      partnerLocks={partnerLocks}
       {...overrides}
     />
   );
@@ -284,6 +295,16 @@ describe("player Live Board", () => {
     expect(within(next).queryByText("Yara")).toBeNull();
     expect(within(preparing).getByText("Yara")).toBeTruthy();
     expect(within(preparing).queryByText("Uma")).toBeNull();
+  });
+
+  it("shows partner locks as read-only public information", () => {
+    render(board());
+    const section = document.querySelector(
+      '[data-live-board-section="partner-locks"]',
+    ) as HTMLElement;
+    expect(within(section).getByText("Alex + Blair")).toBeTruthy();
+    expect(within(section).getByText(/Levels 3 \+ 4 · same team/)).toBeTruthy();
+    expect(within(section).queryByRole("button")).toBeNull();
   });
 
   it("keeps the waiting queue in position order with estimates", () => {

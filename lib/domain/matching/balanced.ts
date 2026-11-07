@@ -7,12 +7,14 @@ import {
   gamesPlayedSpread,
   getEligiblePlayers,
   isStarved,
+  lockedPairNote,
   playersPerMatch,
   queueDisplacement,
   queueIndexMap,
   repeatOpponentCount,
   repeatPartnerCount,
   selectionKey,
+  selectionSatisfiesLocks,
   sortByTieBreakers,
   starvationPenalty,
   teamPartitions,
@@ -77,6 +79,10 @@ export function proposeBalanced(
   let bestKey: string | null = null;
 
   for (const group of combinations(pool, size)) {
+    if (!selectionSatisfiesLocks(group.map((c) => c.id), rules.lockedPairs)) {
+      continue;
+    }
+
     const partitions = teamPartitions(group, rules.lockedPairs);
     if (partitions.length === 0) continue;
 
@@ -138,7 +144,9 @@ export function proposeBalanced(
     ok: true,
     proposal: {
       players: toProposalPlayers(best.selected, best.assignment),
-      explanation: explainBalanced(best, sorted, selectedIds, size),
+      explanation:
+        explainBalanced(best, sorted, selectedIds, size) +
+        lockedPairNote(best.selected, rules.lockedPairs),
       cost: best.cost,
       breakdown: best.breakdown,
       skippedPlayerIds: sorted

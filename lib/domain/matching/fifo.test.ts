@@ -142,4 +142,65 @@ describe("proposeFifo", () => {
 
     expect(JSON.stringify(first)).toBe(JSON.stringify(second));
   });
+
+  it("selects locked partners together on the same team", () => {
+    const result = proposeFifo(
+      queued(["a", "b", "c", "d", "e"]),
+      rules({ lockedPairs: [["a", "d"]] }),
+    );
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    const selected = new Map(
+      result.proposal.players.map((candidate) => [
+        candidate.playerId,
+        candidate.teamNumber,
+      ]),
+    );
+    expect(selected.has("a")).toBe(true);
+    expect(selected.has("d")).toBe(true);
+    expect(selected.get("a")).toBe(selected.get("d"));
+    expect(result.proposal.explanation).toContain(
+      "Locked partners kept together",
+    );
+  });
+
+  it("anchors a locked pair at the later partner's queue position", () => {
+    const result = proposeFifo(
+      queued(["a", "b", "c", "d", "e", "f"]),
+      rules({ lockedPairs: [["a", "e"]] }),
+    );
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.proposal.players.map((candidate) => candidate.playerId)).toEqual([
+      "b",
+      "c",
+      "d",
+      "f",
+    ]);
+    expect(result.proposal.skippedPlayerIds).toEqual(["a", "e"]);
+  });
+
+  it("selects neither partner when one partner is unavailable", () => {
+    const candidates = queued(["a", "b", "c", "d", "e", "f"]).map(
+      (candidate) =>
+        candidate.id === "b"
+          ? { ...candidate, attendanceStatus: "checked_out" as const }
+          : candidate,
+    );
+    const result = proposeFifo(
+      candidates,
+      rules({ lockedPairs: [["a", "b"]] }),
+    );
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.proposal.players.map((candidate) => candidate.playerId)).toEqual([
+      "c",
+      "d",
+      "e",
+      "f",
+    ]);
+  });
 });

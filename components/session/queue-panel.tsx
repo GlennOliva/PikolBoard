@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
-import { Coffee, LogIn, LogOut, PlayCircle, UserMinus } from "lucide-react";
+import { Coffee, Link2, LogIn, LogOut, PlayCircle, UserMinus } from "lucide-react";
 import { SubmitButton } from "@/components/forms/submit-button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -20,12 +20,13 @@ import {
 } from "@/app/actions/session-action-state";
 import { AddPlayersDialog } from "@/components/session/add-players-dialog";
 import { initialsOf } from "@/lib/format";
-import type { Player, SessionPlayer } from "@/lib/db/types";
+import type { PartnerLock, Player, SessionPlayer } from "@/lib/db/types";
 import {
   attendancePlayerId,
   needsCheckIn,
   rosterStateLabel,
 } from "@/lib/domain/queue/attendance";
+import { lockedPartnerMap } from "@/lib/domain/session/partner-locks";
 
 type Attendance = SessionPlayer["attendance_status"];
 
@@ -41,12 +42,18 @@ export function QueuePanel({
   roster,
   availablePlayers,
   canManage,
+  partnerLocks = [],
 }: {
   sessionId: string;
   roster: SessionPlayer[];
   availablePlayers: Player[];
   canManage: boolean;
+  partnerLocks?: PartnerLock[];
 }) {
+  const partners = lockedPartnerMap(partnerLocks);
+  const rosterByPlayer = new Map(
+    roster.map((player) => [player.player_id, player]),
+  );
   const groups: Array<{ key: string; title: string; rows: SessionPlayer[] }> = [
     {
       key: "waiting",
@@ -117,11 +124,21 @@ export function QueuePanel({
                       : "border-border")
                 }
               >
-                {group.rows.map((player) => (
-                  <li
-                    key={player.id}
-                    className="flex flex-wrap items-center gap-2 px-3 py-2 transition-colors hover:bg-muted/35"
-                  >
+                {group.rows.map((player) => {
+                  const partner = partners.get(player.player_id);
+                  const partnerRow = partner
+                    ? rosterByPlayer.get(partner.partnerId)
+                    : null;
+                  const waitingForPartner =
+                    player.attendance_status === "waiting" &&
+                    partner !== undefined &&
+                    (partnerRow?.attendance_status !== "waiting" ||
+                      partnerRow?.queue_position == null);
+                  return (
+                    <li
+                      key={player.id}
+                      className="flex flex-wrap items-center gap-2 px-3 py-2 transition-colors hover:bg-muted/35"
+                    >
                     <span
                       aria-hidden
                       className="grid size-8 shrink-0 place-items-center rounded-md border border-border bg-muted text-[10px] font-semibold text-pikol-cyan"
@@ -146,12 +163,25 @@ export function QueuePanel({
                         {player.times_skipped > 0
                           ? ` · skipped ${player.times_skipped}×`
                           : ""}
+                        {waitingForPartner
+                          ? " · Waiting for partner to check in"
+                          : ""}
                       </p>
                     </div>
 
-                    {player.queue_position ? (
-                      <Badge variant="up-next">#{player.queue_position}</Badge>
-                    ) : null}
+                      {partner ? (
+                        <Badge
+                          variant="preparing"
+                          aria-label={`Partner locked with ${partner.partnerName}`}
+                        >
+                          <Link2 className="size-3" aria-hidden />
+                          {partner.partnerName}
+                        </Badge>
+                      ) : null}
+
+                      {player.queue_position ? (
+                        <Badge variant="up-next">#{player.queue_position}</Badge>
+                      ) : null}
 
                     {canManage ? (
                       <RowActions
@@ -165,8 +195,9 @@ export function QueuePanel({
                         playerMissing={player.player_missing}
                       />
                     ) : null}
-                  </li>
-                ))}
+                    </li>
+                  );
+                })}
               </ul>
             </section>
           ))}

@@ -8,6 +8,7 @@ import { LiveBoardQrDialog } from "@/components/session/live-board-qr-dialog";
 import { LineupPanels } from "@/components/session/lineup-panels";
 import { MatchHistory } from "@/components/session/match-history";
 import { Matchmaker } from "@/components/session/matchmaker";
+import { PartnerLocksPanel } from "@/components/session/partner-locks-panel";
 import { QueuePanel } from "@/components/session/queue-panel";
 import { SessionControls } from "@/components/session/session-controls";
 import { SessionSetup } from "@/components/session/session-setup";
@@ -45,7 +46,7 @@ async function LiveSession({
   if (!data) notFound();
 
   const { bundle, club, standings, history, availablePlayers } = data;
-  const { session, courts, roster, matches } = bundle;
+  const { session, courts, roster, matches, partnerLocks } = bundle;
 
   const canManage = club ? canManageClub(club) : false;
   const rosterEditable =
@@ -174,7 +175,17 @@ async function LiveSession({
             roster={roster}
             availablePlayers={availablePlayers}
             canManage={rosterEditable}
+            partnerLocks={partnerLocks}
           />
+          {session.format === "doubles" ? (
+            <PartnerLocksPanel
+              sessionId={session.id}
+              roster={roster}
+              matches={matches}
+              locks={partnerLocks}
+              canManage={canManage && session.status === "active"}
+            />
+          ) : null}
         </section>
       </div>
 
@@ -189,6 +200,7 @@ async function LiveSession({
           roster={roster}
           format={session.format}
           canManage={canManage && session.status === "active"}
+          partnerLocks={partnerLocks}
         />
       </section>
 

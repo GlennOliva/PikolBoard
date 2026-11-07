@@ -7,11 +7,13 @@ import {
   gamesPlayedSpread,
   getEligiblePlayers,
   isStarved,
+  lockedPairNote,
   playersPerMatch,
   queueDisplacement,
   queueIndexMap,
   repeatPartnerCount,
   selectionKey,
+  selectionSatisfiesLocks,
   skillRangeOf,
   sortByTieBreakers,
   starvationPenalty,
@@ -77,6 +79,10 @@ export function proposeSkillSeparated(
   let bestKey: string | null = null;
 
   for (const group of combinations(pool, size)) {
+    if (!selectionSatisfiesLocks(group.map((c) => c.id), rules.lockedPairs)) {
+      continue;
+    }
+
     const partitions = teamPartitions(group, rules.lockedPairs);
     if (partitions.length === 0) continue;
 
@@ -136,7 +142,9 @@ export function proposeSkillSeparated(
     ok: true,
     proposal: {
       players: toProposalPlayers(best.selected, best.assignment),
-      explanation: explainSkillSeparated(best, sorted, selectedIds, starved.length, forced),
+      explanation:
+        explainSkillSeparated(best, sorted, selectedIds, starved.length, forced) +
+        lockedPairNote(best.selected, rules.lockedPairs),
       cost: best.cost,
       breakdown: best.breakdown,
       skippedPlayerIds: sorted

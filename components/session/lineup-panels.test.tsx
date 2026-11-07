@@ -7,6 +7,7 @@ import type {
   LineupMatchLike,
   RosterRowLike,
 } from "@/lib/domain/session/lineups";
+import type { PartnerLock } from "@/lib/db/types";
 
 const mocks = vi.hoisted(() => ({
   refresh: vi.fn(),
@@ -82,6 +83,19 @@ const roster: RosterRowLike[] = Array.from({ length: 9 }, (_, index) => {
     player_missing: false,
   };
 });
+
+const opposingLock: PartnerLock = {
+  id: "70000000-0000-4000-8000-000000000001",
+  session_id: sessionId,
+  player_a_id: upNext.players[0].player_id,
+  player_b_id: upNext.players[2].player_id,
+  active: true,
+  created_at: "2026-01-01T09:00:00Z",
+  player_a_name: "Player 1",
+  player_b_name: "Player 3",
+  player_a_skill: 3,
+  player_b_skill: 3,
+};
 
 function result() {
   return Promise.resolve({
@@ -173,6 +187,19 @@ describe("LineupPanels", () => {
       });
       expect(mocks.refresh).toHaveBeenCalledTimes(1);
     });
+  });
+
+  it("refuses to save locked partners on opposing teams", async () => {
+    render(panels({ partnerLocks: [opposingLock] }));
+    fireEvent.click(screen.getAllByRole("button", { name: "Edit" })[0]);
+
+    const dialog = screen.getByRole("dialog", { name: "Edit Friday Feature" });
+    fireEvent.click(within(dialog).getByRole("button", { name: "Save lineup" }));
+
+    expect(
+      within(dialog).getByRole("alert").textContent,
+    ).toContain("Locked partners must play on the same team");
+    expect(mocks.update).not.toHaveBeenCalled();
   });
 
   it("offers promotion only when the Up Next slot is empty", async () => {

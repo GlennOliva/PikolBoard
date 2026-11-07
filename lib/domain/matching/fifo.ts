@@ -2,8 +2,10 @@ import {
   buildRepeatHistory,
   combinations,
   getEligiblePlayers,
+  lockedPairNote,
   playersPerMatch,
   queueIndexMap,
+  selectFifoUnits,
   sortByTieBreakers,
   teamPartitions,
   teamSkillDifference,
@@ -53,7 +55,11 @@ export function proposeFifo(
     return notEnoughPlayers(sorted.length, size, rules);
   }
 
-  const selected = sorted.slice(0, size);
+  const selected = selectFifoUnits(sorted, size, rules.lockedPairs);
+  if (selected.length < size) {
+    return notEnoughPlayers(sorted.length, size, rules);
+  }
+
   const index = queueIndexMap(sorted);
   const history = buildRepeatHistory(
     recentMatches,
@@ -94,7 +100,9 @@ export function proposeFifo(
     `First-come, first-out: the ${size} longest-waiting players` +
     (bestDifference === 0
       ? " with evenly matched team skill."
-      : `, split to keep the team skill gap to ${bestDifference}.`);
+      : `, split to keep the team skill gap to ${bestDifference}.`) +
+    lockedPairNote(selected, rules.lockedPairs);
+  const selectedIds = new Set(selected.map((candidate) => candidate.id));
 
   return {
     ok: true,
@@ -103,7 +111,9 @@ export function proposeFifo(
       explanation,
       cost: bestCost,
       breakdown,
-      skippedPlayerIds: sorted.slice(size).map((c) => c.id),
+      skippedPlayerIds: sorted
+        .filter((candidate) => !selectedIds.has(candidate.id))
+        .map((candidate) => candidate.id),
     },
   };
 }

@@ -11,13 +11,14 @@ import {
   LineupCards,
   type LineupCardGroup,
 } from "@/components/session/up-next";
-import { CheckCircle2, ListOrdered, MonitorOff, Trophy } from "lucide-react";
+import { CheckCircle2, Link2, ListOrdered, MonitorOff, Trophy } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type {
   PublicLineupSection,
   PublicLiveCourt,
   PublicLiveSession,
   PublicMatchLineupRow,
+  PublicPartnerLock,
   PublicSessionPresenceRow,
   PublicSessionStanding,
 } from "@/lib/db/types";
@@ -30,6 +31,7 @@ export function PublicLiveBoard({
   preparation,
   presence,
   standings,
+  partnerLocks = [],
 }: {
   session: PublicLiveSession;
   courts: PublicLiveCourt[];
@@ -38,6 +40,7 @@ export function PublicLiveBoard({
   preparation: PublicLineupSection[];
   presence: PublicSessionPresenceRow[];
   standings: PublicSessionStanding[];
+  partnerLocks?: PublicPartnerLock[];
 }) {
   const playing = courts.filter((court) => court.match_status === "playing");
   const staged = courts.filter((court) => court.match_status === "staged");
@@ -119,6 +122,51 @@ export function PublicLiveBoard({
           </div>
         </dl>
       </header>
+
+      {partnerLocks.length > 0 ? (
+        <section
+          aria-labelledby="public-partner-locks"
+          className="flex flex-col gap-4"
+          data-live-board-section="partner-locks"
+        >
+          <div>
+            <p className="retro-kicker">Playing together</p>
+            <h2
+              id="public-partner-locks"
+              className="retro-section-title mt-2 text-xl sm:text-2xl"
+            >
+              Partner Locks
+            </h2>
+          </div>
+          <Card className="retro-preparing">
+            <CardContent className="pt-5 sm:pt-6">
+              <ul className="grid gap-3 sm:grid-cols-2">
+                {partnerLocks.map((lock, index) => (
+                  <li
+                    key={`${lock.display_name_a}:${lock.display_name_b}:${index}`}
+                    className="flex items-center gap-3 rounded-lg border border-pikol-purple/35 bg-pikol-purple/10 px-3 py-3"
+                  >
+                    <span
+                      className="grid size-9 shrink-0 place-items-center rounded-md border border-pikol-purple/40 text-pikol-purple"
+                      aria-hidden
+                    >
+                      <Link2 className="size-4" />
+                    </span>
+                    <div className="min-w-0">
+                      <p className="text-sm font-semibold">
+                        {lock.display_name_a} + {lock.display_name_b}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        Levels {lock.skill_level_a} + {lock.skill_level_b} · same team
+                      </p>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </CardContent>
+          </Card>
+        </section>
+      ) : null}
 
       <section
         aria-labelledby="live-courts"

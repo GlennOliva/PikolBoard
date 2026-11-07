@@ -58,8 +58,8 @@ export interface MatchingRules {
   repeatHistoryLimit?: number;
   /**
    * Pairs that must not be split across teams (or must be kept together).
-   * Empty for P0; the rule is honoured so P1 partner locking does not
-   * require rewriting the engine.
+   * A pair is selectable only when both members are eligible, and both members
+   * are always assigned to the same team.
    */
   lockedPairs?: string[][];
 }

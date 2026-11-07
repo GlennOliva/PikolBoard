@@ -162,6 +162,29 @@ export interface SessionPlayer {
   player_missing: boolean;
 }
 
+/** An active organizer-owned partnership for one doubles session. */
+export interface PartnerLock {
+  id: string;
+  session_id: string;
+  player_a_id: string;
+  player_b_id: string;
+  active: boolean;
+  created_at: string;
+  /** Resolved from the session roster for the organizer display. */
+  player_a_name: string;
+  player_b_name: string;
+  player_a_skill: number;
+  player_b_skill: number;
+}
+
+/** Sanitized pair shown on the anonymous Player Live View. */
+export interface PublicPartnerLock {
+  display_name_a: string;
+  skill_level_a: number;
+  display_name_b: string;
+  skill_level_b: number;
+}
+
 export interface Match {
   id: string;
   session_id: string;
@@ -292,6 +315,8 @@ export interface PublicLineupPlayer {
   slot_number: number;
   display_name: string;
   skill_level: number;
+  /** True when this player is in an active partner lock. */
+  partner_locked?: boolean;
   /** Surrogate match_players id, used as the React key. See lineup_id above. */
   lineup_id: string;
 }
@@ -398,6 +423,8 @@ export interface PublicSessionPresenceRow {
   checked_in_at: string | null;
   last_enqueued_at: string | null;
   presence_id: string;
+  /** True when this player is in an active partner lock. */
+  partner_locked?: boolean;
 }
 
 /** Entire token-scoped payload returned by get_player_live_board. */
@@ -412,6 +439,7 @@ export interface PlayerLiveBoardPayload {
   preparation: PublicLineupSection[];
   presence: PublicSessionPresenceRow[];
   standings: PublicSessionStanding[];
+  partner_locks: PublicPartnerLock[];
 }
 
 /** A club plus the viewer's membership, which drives what they may click. */

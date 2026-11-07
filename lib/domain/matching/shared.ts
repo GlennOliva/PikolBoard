@@ -114,6 +114,128 @@ export function sortByTieBreakers(candidates: QueueCandidate[]): QueueCandidate[
 }
 
 /** Map each player to their index in the tie-broken queue. */
+
+/** Canonical, de-duplicated locked pairs. */
+export function normalizeLockedPairs(lockedPairs: string[][] = []): Array<[string, string]> {
+  const pairs = new Map<string, [string, string]>();
+  for (const pair of lockedPairs) {
+    if (pair.length !== 2) continue;
+    const [a, b] = pair;
+    if (!a || !b || a === b) continue;
+    const sorted = (a < b ? [a, b] : [b, a]) as [string, string];
+    pairs.set(selectionKeyForIds(sorted), sorted);
+  }
+  return [...pairs.values()];
+}
+
+function selectionKeyForIds(ids: string[]): string {
+  return ids.slice().sort().join("|");
+}
+
+export function selectionSatisfiesLocks(
+  selectedIds: Iterable<string>,
+  lockedPairs: string[][] = [],
+): boolean {
+  const ids = new Set(selectedIds);
+  for (const [a, b] of normalizeLockedPairs(lockedPairs)) {
+    if (ids.has(a) !== ids.has(b)) return false;
+  }
+  return true;
+}
+
+export function lockedPairsInSelection(
+  selected: QueueCandidate[],
+  lockedPairs: string[][] = [],
+): Array<[string, string]> {
+  const ids = new Set(selected.map((c) => c.id));
+  return normalizeLockedPairs(lockedPairs).filter(
+    ([a, b]) => ids.has(a) && ids.has(b),
+  );
+}
+
+/** Suffix for the human-readable proposal explanation. */
+export function lockedPairNote(
+  selected: QueueCandidate[],
+  lockedPairs: string[][] = [],
+): string {
+  const count = lockedPairsInSelection(selected, lockedPairs).length;
+  if (count === 0) return "";
+  return count === 1
+    ? " Locked partners kept together."
+    : ` ${count} locked pairs kept together.`;
+}
+
+/**
+ * FIFO selection that treats a locked pair as one unit.
+ *
+ * The unit is anchored at the later partner's queue position, so locking can
+ * never pull somebody forward past a player who was already waiting. If one
+ * partner is not eligible, neither is selected.
+ */
+export function selectFifoUnits(
+  sorted: QueueCandidate[],
+  size: number,
+  lockedPairs: string[][] = [],
+): QueueCandidate[] {
+  const byId = new Map(sorted.map((c) => [c.id, c]));
+  const partnerOf = new Map<string, string>();
+  for (const [a, b] of normalizeLockedPairs(lockedPairs)) {
+    partnerOf.set(a, b);
+    partnerOf.set(b, a);
+  }
+
+  const seen = new Set<string>();
+  const units: Array<{
+    members: QueueCandidate[];
+    anchor: QueueCandidate;
+    key: string;
+  }> = [];
+
+  for (const candidate of sorted) {
+    if (seen.has(candidate.id)) continue;
+    const partnerId = partnerOf.get(candidate.id);
+
+    if (!partnerId) {
+      seen.add(candidate.id);
+      units.push({
+        members: [candidate],
+        anchor: candidate,
+        key: candidate.id,
+      });
+      continue;
+    }
+
+    const partner = byId.get(partnerId);
+    seen.add(candidate.id);
+    seen.add(partnerId);
+
+    // A locked player whose partner is on break, checked out, or otherwise
+    // ineligible cannot be selected alone.
+    if (!partner) continue;
+
+    const anchor =
+      compareCandidates(candidate, partner) <= 0 ? partner : candidate;
+    units.push({
+      members: [candidate, partner],
+      anchor,
+      key: selectionKey([candidate, partner]),
+    });
+  }
+
+  units.sort(
+    (a, b) => compareCandidates(a.anchor, b.anchor) || a.key.localeCompare(b.key),
+  );
+
+  const selected: QueueCandidate[] = [];
+  for (const unit of units) {
+    if (selected.length + unit.members.length > size) continue;
+    selected.push(...unit.members);
+    if (selected.length === size) break;
+  }
+
+  return selected;
+}
+
 export function queueIndexMap(
   sorted: QueueCandidate[],
 ): Map<string, number> {
@@ -364,11 +486,26 @@ export function buildCandidatePool(
   rules: MatchingRules,
 ): QueueCandidate[] {
   const size = candidatePoolSize(rules.format);
+  const byId = new Map(sorted.map((c) => [c.id, c]));
   const pool = new Map<string, QueueCandidate>();
   for (const c of sorted.slice(0, size)) pool.set(c.id, c);
   for (const c of sorted) {
     if (isStarved(c, rules)) pool.set(c.id, c);
   }
+
+  // A locked pair is a unit: if one member is in the pool, the other must be
+  // too. If the partner is no longer eligible, neither may be selected.
+  for (const [a, b] of normalizeLockedPairs(rules.lockedPairs)) {
+    const hasA = pool.has(a);
+    const hasB = pool.has(b);
+    if (hasA === hasB) continue;
+    const missingId = hasA ? b : a;
+    const presentId = hasA ? a : b;
+    const partner = byId.get(missingId);
+    if (partner) pool.set(missingId, partner);
+    else pool.delete(presentId);
+  }
+
   return [...pool.values()];
 }
 

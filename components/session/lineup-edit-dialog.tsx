@@ -20,6 +20,7 @@ import {
   type CourtLike,
   type LineupMatchLike,
   type LineupSelection,
+  type LockedPairLike,
   type RosterRowLike,
   type SessionFormat,
 } from "@/lib/domain/session/lineups";
@@ -49,6 +50,7 @@ export function LineupEditDialog({
   matches,
   courts,
   format,
+  partnerLocks = [],
   onClose,
   onSave,
 }: {
@@ -57,6 +59,7 @@ export function LineupEditDialog({
   matches: LineupMatchLike[];
   courts: CourtLike[];
   format: SessionFormat;
+  partnerLocks?: LockedPairLike[];
   onClose: () => void;
   onSave: (input: {
     matchId: string;
@@ -127,7 +130,7 @@ export function LineupEditDialog({
   }
 
   async function save() {
-    const problem = validateSelection(current, format);
+    const problem = validateSelection(current, format, partnerLocks);
     if (problem) {
       setError(problem);
       return;

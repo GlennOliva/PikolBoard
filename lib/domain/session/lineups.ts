@@ -185,6 +185,11 @@ export interface LineupSelection {
   player_id: string | null;
 }
 
+export interface LockedPairLike {
+  player_a_id: string;
+  player_b_id: string;
+}
+
 /**
  * The slots a lineup has, in render order.
  *
@@ -273,6 +278,7 @@ export function selectableRoster(
 export function validateSelection(
   selections: LineupSelection[],
   format: SessionFormat,
+  lockedPairs: LockedPairLike[] = [],
 ): string | null {
   const expected = lineupSlots(format);
   if (selections.length !== expected.length) {
@@ -288,6 +294,24 @@ export function validateSelection(
   const ids = filled.map((selection) => selection.player_id as string);
   if (new Set(ids).size !== ids.length) {
     return "The same player cannot be selected twice";
+  }
+
+  const teamByPlayer = new Map(
+    filled.map((selection) => [
+      selection.player_id as string,
+      selection.team,
+    ]),
+  );
+  for (const lock of lockedPairs) {
+    const teamA = teamByPlayer.get(lock.player_a_id);
+    const teamB = teamByPlayer.get(lock.player_b_id);
+
+    if ((teamA === undefined) !== (teamB === undefined)) {
+      return "Locked partners must be selected together. Unlock the pair before separating them";
+    }
+    if (teamA !== undefined && teamB !== undefined && teamA !== teamB) {
+      return "Locked partners must play on the same team. Unlock the pair before separating them";
+    }
   }
 
   const perTeam = new Map<number, number>();

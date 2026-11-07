@@ -15,6 +15,7 @@ import {
 } from "@/app/actions/lineup-actions";
 import { LineupEditDialog } from "@/components/session/lineup-edit-dialog";
 import { initialsOf } from "@/lib/format";
+import type { PartnerLock } from "@/lib/db/types";
 import {
   assignableCourts,
   courtLabel,
@@ -47,6 +48,7 @@ export function LineupPanels({
   roster,
   format,
   canManage,
+  partnerLocks = [],
 }: {
   sessionId: string;
   matches: LineupMatchLike[];
@@ -54,6 +56,7 @@ export function LineupPanels({
   roster: RosterRowLike[];
   format: SessionFormat;
   canManage: boolean;
+  partnerLocks?: PartnerLock[];
 }) {
   const router = useRouter();
   const [editing, setEditing] = useState<{ match: LineupMatchLike; label: string } | null>(
@@ -196,6 +199,7 @@ export function LineupPanels({
         matches={matches}
         courts={courts}
         format={format}
+        partnerLocks={partnerLocks}
         onClose={() => setEditing(null)}
         onSave={async (input) => {
           const result = await updateLineupPlayersAction({

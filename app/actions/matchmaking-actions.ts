@@ -151,7 +151,16 @@ export async function buildProposalAction(
       };
     });
 
-    const recent = await loadRecentMatches(parsed.data.sessionId);
+    const [recent, locksRes] = await Promise.all([
+      loadRecentMatches(parsed.data.sessionId),
+      supabase
+        .from("session_partner_locks")
+        .select("player_a_id, player_b_id")
+        .eq("session_id", parsed.data.sessionId)
+        .eq("active", true),
+    ]);
+
+    if (locksRes.error) throw new DataError(locksRes.error.message);
 
     const result = proposeMatch(
       candidates,
@@ -162,6 +171,10 @@ export async function buildProposalAction(
         starvationThresholdMinutes:
           session.starvation_threshold_minutes as number,
         now: new Date(),
+        lockedPairs: (locksRes.data ?? []).map((lock) => [
+          lock.player_a_id,
+          lock.player_b_id,
+        ]),
       },
       recent,
     );

@@ -5,6 +5,7 @@ import type {
   ClubWithMembership,
   Match,
   MatchPlayer,
+  PartnerLock,
   Player,
   PlayerLiveBoardPayload,
   PublicClub,
@@ -12,6 +13,7 @@ import type {
   PublicLiveSession,
   PublicMatchLineupRow,
   PublicMatchResult,
+  PublicPartnerLock,
   PublicSessionPresenceRow,
   PublicSessionQueueRow,
   PublicSessionStanding,
@@ -39,6 +41,7 @@ export type {
   MatchPlayer,
   MatchResult,
   MatchStatus,
+  PartnerLock,
   Player,
   PlayerLiveBoardPayload,
   Profile,
@@ -49,6 +52,7 @@ export type {
   PublicLiveSession,
   PublicMatchLineupRow,
   PublicMatchResult,
+  PublicPartnerLock,
   PublicSessionPresenceRow,
   PublicSessionQueueRow,
   PublicSessionStanding,
@@ -297,6 +301,7 @@ export interface SessionBundle {
   courts: SessionBundleCourt[];
   roster: SessionPlayer[];
   matches: MatchWithPlayers[];
+  partnerLocks: PartnerLock[];
 }
 
 export interface SessionBundleCourt {
@@ -332,7 +337,7 @@ export async function getSessionBundle(
   fail(sessionError);
   if (!session) return null;
 
-  const [courtsRes, rosterRes, matchesRes] = await Promise.all([
+  const [courtsRes, rosterRes, matchesRes, locksRes] = await Promise.all([
     supabase
       .from("courts")
       .select("*")
@@ -352,11 +357,18 @@ export async function getSessionBundle(
       // below: matchByCourt only buckets matches that have a court_id.
       .in("status", ["preparing", "up_next", "staged", "playing"])
       .order("match_number", { ascending: true }),
+    supabase
+      .from("session_partner_locks")
+      .select("id, session_id, player_a_id, player_b_id, active, created_at")
+      .eq("session_id", sessionId)
+      .eq("active", true)
+      .order("created_at", { ascending: true }),
   ]);
 
   fail(courtsRes.error);
   fail(rosterRes.error);
   fail(matchesRes.error);
+  fail(locksRes.error);
 
   const matches = mapMatchesWithPlayers(
     (matchesRes.data ?? []) as Array<Record<string, unknown>>,
@@ -366,6 +378,44 @@ export async function getSessionBundle(
   for (const match of matches) {
     if (match.court_id) matchByCourt.set(match.court_id, match);
   }
+
+  const roster = (rosterRes.data ?? []).map((row) => {
+    const player = row.players as unknown as {
+      display_name: string;
+      skill_level: number;
+      division: string | null;
+    } | null;
+    const rest = omitKey(row, "players");
+    return {
+      ...(rest as Omit<
+        SessionPlayer,
+        "display_name" | "skill_level" | "division" | "player_missing"
+      >),
+      display_name: player?.display_name ?? "Unknown",
+      skill_level: player?.skill_level ?? 3,
+      division: player?.division ?? null,
+      // The embed is a left join, so a null here means the session_players
+      // row has no club player behind it. Flag it rather than letting the UI
+      // show a roster entry the database cannot act on.
+      player_missing: player === null,
+    } as SessionPlayer;
+  });
+
+  const rosterByPlayer = new Map(roster.map((row) => [row.player_id, row]));
+  const partnerLocks: PartnerLock[] = (locksRes.data ?? []).map((lock) => {
+    const a = rosterByPlayer.get(lock.player_a_id as string);
+    const b = rosterByPlayer.get(lock.player_b_id as string);
+    return {
+      ...(lock as Omit<
+        PartnerLock,
+        "player_a_name" | "player_b_name" | "player_a_skill" | "player_b_skill"
+      >),
+      player_a_name: a?.display_name ?? "Unknown",
+      player_b_name: b?.display_name ?? "Unknown",
+      player_a_skill: a?.skill_level ?? 3,
+      player_b_skill: b?.skill_level ?? 3,
+    } as PartnerLock;
+  });
 
   return {
     session: session as Session,
@@ -377,28 +427,9 @@ export async function getSessionBundle(
       ladder_position: court.ladder_position as number,
       match: matchByCourt.get(court.id as string) ?? null,
     })),
-    roster: (rosterRes.data ?? []).map((row) => {
-      const player = row.players as unknown as {
-        display_name: string;
-        skill_level: number;
-        division: string | null;
-      } | null;
-      const rest = omitKey(row, "players");
-      return {
-        ...(rest as Omit<
-          SessionPlayer,
-          "display_name" | "skill_level" | "division" | "player_missing"
-        >),
-        display_name: player?.display_name ?? "Unknown",
-        skill_level: player?.skill_level ?? 3,
-        division: player?.division ?? null,
-        // The embed is a left join, so a null here means the session_players
-        // row has no club player behind it. Flag it rather than letting the UI
-        // show a roster entry the database cannot act on.
-        player_missing: player === null,
-      } as SessionPlayer;
-    }),
+    roster,
     matches,
+    partnerLocks,
   };
 }
 
@@ -530,12 +561,21 @@ export async function getPlayerLiveBoard(
   publicToken: string,
 ): Promise<PlayerLiveBoardPayload | null> {
   const supabase = await createClient();
-  const { data, error } = await supabase.rpc("get_player_live_board", {
-    p_public_token: publicToken,
-  });
+  const [boardRes, locksRes] = await Promise.all([
+    supabase.rpc("get_player_live_board", { p_public_token: publicToken }),
+    supabase.rpc("get_public_partner_locks", { p_public_token: publicToken }),
+  ]);
 
-  fail(error);
-  return (data as PlayerLiveBoardPayload | null) ?? null;
+  fail(boardRes.error);
+  fail(locksRes.error);
+
+  const board = (boardRes.data as PlayerLiveBoardPayload | null) ?? null;
+  if (!board) return null;
+
+  return {
+    ...board,
+    partner_locks: (locksRes.data as PublicPartnerLock[] | null) ?? [],
+  };
 }
 
 export async function getPublicClubSessions(

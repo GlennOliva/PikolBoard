@@ -54,6 +54,7 @@ async function PlayerLiveContent({
       preparation={board.preparation}
       presence={board.presence}
       standings={board.standings}
+      partnerLocks={board.partner_locks}
     />
   );
 }

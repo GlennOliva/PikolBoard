@@ -135,6 +135,36 @@ describe("lineup editing", () => {
     ).toBe("The same player cannot be selected twice");
   });
 
+  it("prevents a manual lineup from splitting locked partners", () => {
+    const base = selectionFromMatch(match(), "doubles");
+    const withoutPartner = base.map((selection) =>
+      selection.player_id === "b"
+        ? { ...selection, player_id: "replacement" }
+        : selection,
+    );
+
+    expect(
+      validateSelection(withoutPartner, "doubles", [
+        { player_a_id: "a", player_b_id: "b" },
+      ]),
+    ).toContain("must be selected together");
+  });
+
+  it("prevents locked partners from being placed on opposing teams", () => {
+    const base = selectionFromMatch(match(), "doubles");
+    const opposing = moveSelection(
+      base,
+      { team: 1, slot: 2 },
+      { team: 2, slot: 1 },
+    );
+
+    expect(
+      validateSelection(opposing, "doubles", [
+        { player_a_id: "a", player_b_id: "b" },
+      ]),
+    ).toContain("same team");
+  });
+
   it("swaps occupied slots without losing either player", () => {
     const base = selectionFromMatch(match(), "doubles");
     const moved = moveSelection(base, { team: 1, slot: 1 }, { team: 2, slot: 1 });
