@@ -7,6 +7,8 @@ import { CreateSessionForm } from "@/components/sessions/create-session-form";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { EmptyState } from "@/components/ui/empty-state";
+import { PageSkeleton } from "@/components/ui/skeleton";
 import { getClubById, getClubSessions, getRoster } from "@/lib/db/queries";
 import { canManageClub } from "@/lib/permissions";
 import { formatDateTime, formatSessionWindow } from "@/lib/format";
@@ -16,12 +18,12 @@ export const metadata = { title: "Sessions" };
 
 const STATUS_VARIANT: Record<
   Session["status"],
-  "default" | "secondary" | "outline"
+  "draft" | "live" | "completed" | "danger"
 > = {
-  draft: "outline",
-  active: "default",
-  completed: "secondary",
-  cancelled: "outline",
+  draft: "draft",
+  active: "live",
+  completed: "completed",
+  cancelled: "danger",
 };
 
 export default function SessionsPage({
@@ -31,7 +33,7 @@ export default function SessionsPage({
 }) {
   return (
     <Suspense
-      fallback={<div className="h-40 animate-pulse rounded-lg bg-muted/50" />}
+      fallback={<PageSkeleton label="Loading sessions" />}
     >
       <Sessions params={params} />
     </Suspense>
@@ -55,9 +57,10 @@ async function Sessions({ params }: { params: Promise<{ clubId: string }> }) {
       {canManage ? (
         <>
           {activePlayers.length > 0 ? (
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-base">
+            <Card className="border-pikol-cyan/25">
+              <CardHeader className="border-b border-border/60">
+                <p className="retro-kicker">Fast add</p>
+                <CardTitle className="text-lg">
                   Add players to a session
                 </CardTitle>
               </CardHeader>
@@ -79,8 +82,9 @@ async function Sessions({ params }: { params: Promise<{ clubId: string }> }) {
           ) : null}
 
           <Card>
-            <CardHeader>
-              <CardTitle className="text-base">New session</CardTitle>
+            <CardHeader className="border-b border-border/60">
+              <p className="retro-kicker">Session builder</p>
+              <CardTitle className="text-lg">New session</CardTitle>
             </CardHeader>
             <CardContent>
               <CreateSessionForm clubId={clubId} />
@@ -90,17 +94,21 @@ async function Sessions({ params }: { params: Promise<{ clubId: string }> }) {
       ) : null}
 
       <section aria-labelledby="all-sessions">
-        <h2 id="all-sessions" className="text-lg font-medium">
+        <h2 id="all-sessions" className="retro-section-title">
           Sessions ({sessions.length})
         </h2>
         {sessions.length === 0 ? (
-          <p className="mt-2 text-sm text-muted-foreground">No sessions yet.</p>
+          <EmptyState
+            className="mt-3"
+            title="No sessions yet"
+            body="Create the first session above, then add players and start the live rotation."
+          />
         ) : (
           <ul className="mt-3 flex flex-col gap-2">
             {sessions.map((session) => (
               <li
                 key={session.id}
-                className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border px-4 py-3"
+                className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border bg-card/65 px-4 py-3 transition-colors hover:border-pikol-cyan/35"
               >
                 <div className="min-w-0">
                   <div className="flex items-center gap-2">
@@ -109,7 +117,7 @@ async function Sessions({ params }: { params: Promise<{ clubId: string }> }) {
                       {session.status}
                     </Badge>
                     {session.is_public ? (
-                      <Badge variant="outline">
+                      <Badge variant="success">
                         <Radio className="mr-1 size-3" aria-hidden />
                         public
                       </Badge>

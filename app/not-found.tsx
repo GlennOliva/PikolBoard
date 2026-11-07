@@ -13,10 +13,11 @@ import { productConfig } from "@/lib/product-config";
  */
 export default function NotFound() {
   return (
-    <Card>
+    <Card className="retro-corners mx-auto max-w-2xl">
       <CardContent className="flex flex-col items-start gap-4 py-12">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Page not found</h1>
+          <p className="retro-kicker">Error 404</p>
+          <h1 className="retro-heading mt-3 text-3xl">Page not found</h1>
           <p className="mt-2 max-w-prose text-sm text-muted-foreground">
             That link does not point at anything on {productConfig.name}. It may
             have been mistyped, or the page may have been removed.

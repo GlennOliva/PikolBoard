@@ -2,10 +2,12 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
-import { Radio, Trophy } from "lucide-react";
+import { Trophy } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { EmptyState } from "@/components/ui/empty-state";
+import { PageSkeleton } from "@/components/ui/skeleton";
 import {
   getPublicClub,
   getPublicClubSessions,
@@ -27,7 +29,7 @@ export default function PublicClubPage({
   params: Promise<{ slug: string }>;
 }) {
   return (
-    <Suspense fallback={<div className="h-64 animate-pulse rounded-lg bg-muted/50" />}>
+    <Suspense fallback={<PageSkeleton label="Loading public club" />}>
       <PublicClubView params={params} />
     </Suspense>
   );
@@ -47,8 +49,9 @@ async function PublicClubView({
 
   return (
     <div className="flex flex-col gap-8">
-      <header className="flex flex-col gap-2">
-        <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">
+      <header className="retro-panel-raised retro-corners flex flex-col gap-2 p-5 sm:p-7">
+        <p className="retro-kicker">Public club board</p>
+        <h1 className="retro-heading text-3xl sm:text-4xl">
           {club.name}
         </h1>
         <p className="text-muted-foreground">
@@ -58,16 +61,16 @@ async function PublicClubView({
 
       {active.length > 0 ? (
         <section aria-labelledby="live-now" className="flex flex-col gap-3">
-          <h2 id="live-now" className="text-lg font-medium">
+          <h2 id="live-now" className="retro-section-title">
             Live now
           </h2>
           <ul className="grid gap-3 sm:grid-cols-2">
             {active.map((session) => (
               <li key={session.id}>
-                <Card className="transition-colors hover:border-primary/50">
+                <Card className="border-pikol-cyan/35 transition-colors hover:border-pikol-cyan/60">
                   <CardContent>
                     <div className="flex items-center gap-2">
-                      <Radio className="size-4 text-emerald-600" aria-hidden />
+                      <span className="retro-live-dot" aria-hidden />
                       <p className="font-medium">{session.name}</p>
                     </div>
                     <p className="mt-1 text-sm text-muted-foreground">
@@ -83,21 +86,20 @@ async function PublicClubView({
           </ul>
         </section>
       ) : (
-        <Card>
-          <CardContent className="py-8 text-sm text-muted-foreground">
-            Nothing is live right now. Check back during open play.
-          </CardContent>
-        </Card>
+        <EmptyState
+          title="Nothing is live right now"
+          body="Check back during open play or ask an organizer for a session-specific live-board QR code."
+        />
       )}
 
       {liveSessions.length > 0 ? (
         <section aria-labelledby="standings" className="flex flex-col gap-3">
-          <h2 id="standings" className="text-lg font-medium">
+          <h2 id="standings" className="retro-section-title">
             Session standings
           </h2>
           <div className="grid gap-4 sm:grid-cols-2">
             {liveSessions.slice(0, 2).map((session) => (
-              <Suspense key={session.id} fallback={<div className="h-40 animate-pulse rounded-lg bg-muted/50" />}>
+              <Suspense key={session.id} fallback={<div className="h-40 animate-pulse rounded-lg border border-border bg-muted/50" />}>
                 <Standings sessionId={session.id} />
               </Suspense>
             ))}

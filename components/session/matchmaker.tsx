@@ -78,8 +78,9 @@ export function Matchmaker({
   if (!canManage) return null;
 
   return (
-    <Card>
-      <CardHeader>
+    <Card className="border-pikol-purple/30">
+      <CardHeader className="border-b border-border/60">
+        <p className="retro-kicker">Match engine</p>
         <CardTitle className="text-base">Matchmaker</CardTitle>
       </CardHeader>
       <CardContent className="flex flex-col gap-4">
@@ -133,11 +134,11 @@ function SuggestedLineup({
   onDiscard: () => void;
 }) {
   return (
-    <div className="flex flex-col gap-3 rounded-md border border-border p-3">
+    <div className="flex flex-col gap-3 rounded-lg border border-pikol-purple/30 bg-pikol-purple/5 p-3">
       <div className="grid grid-cols-2 gap-3">
         {[1, 2].map((team) => (
-          <div key={team}>
-            <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+          <div key={team} className={team === 1 ? "rounded-lg border border-pikol-cyan/20 bg-pikol-cyan/5 p-3" : "rounded-lg border border-pikol-pink/20 bg-pikol-pink/5 p-3"}>
+            <p className={team === 1 ? "text-xs font-semibold uppercase tracking-wide text-pikol-cyan" : "text-xs font-semibold uppercase tracking-wide text-pikol-pink"}>
               Team {team}
             </p>
             <ul className="mt-1 flex flex-col gap-1">
@@ -151,7 +152,7 @@ function SuggestedLineup({
                   <li key={player.id} className="flex items-center gap-2 text-sm">
                     <span
                       aria-hidden
-                      className="grid size-6 place-items-center rounded-full bg-muted text-[10px] font-semibold"
+                      className="grid size-6 place-items-center rounded-md border border-border bg-muted text-[10px] font-semibold"
                     >
                       {initialsOf(nameOf(playerNames, player.id))}
                     </span>

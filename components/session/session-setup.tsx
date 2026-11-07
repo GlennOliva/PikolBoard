@@ -50,8 +50,9 @@ export function SessionSetup({
     roster.length >= requiredPlayers && checkedIn >= requiredPlayers;
 
   return (
-    <Card>
-      <CardHeader>
+    <Card className="border-pikol-primary/30">
+      <CardHeader className="border-b border-border/60">
+        <p className="retro-kicker">Draft checklist</p>
         <CardTitle className="text-base">Session setup</CardTitle>
         <CardDescription>
           Check people in, then start the session when the group is ready.
@@ -65,9 +66,9 @@ export function SessionSetup({
           <Stat label="Courts" value={session.court_count} />
         </dl>
 
-        <div className="h-2 overflow-hidden rounded-full bg-muted">
+        <div className="h-2 overflow-hidden rounded-full border border-border bg-muted">
           <div
-            className="h-full rounded-full bg-primary transition-[width]"
+            className="h-full rounded-full bg-pikol-cyan transition-[width]"
             style={{
               width: `${Math.min(100, (checkedIn / requiredPlayers) * 100)}%`,
             }}
@@ -101,9 +102,9 @@ export function SessionSetup({
 
 function Stat({ label, value }: { label: string; value: number }) {
   return (
-    <div className="rounded-md border border-border px-3 py-2">
+    <div className="rounded-lg border border-border bg-background/45 px-3 py-2">
       <dt className="text-xs text-muted-foreground">{label}</dt>
-      <dd className="text-lg font-semibold tabular-nums">{value}</dd>
+      <dd className="text-lg font-semibold tabular-nums text-pikol-cyan">{value}</dd>
     </div>
   );
 }

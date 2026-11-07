@@ -4,6 +4,7 @@ import { ClubSettingsForm } from "@/components/clubs/club-settings-form";
 import { MembersPanel } from "@/components/clubs/members-panel";
 import { getClubById, getClubMembers, getClubSettings } from "@/lib/db/queries";
 import { canManageClub } from "@/lib/permissions";
+import { PageSkeleton } from "@/components/ui/skeleton";
 
 export const metadata = { title: "Club settings" };
 
@@ -14,7 +15,7 @@ export default function ClubSettingsPage({
 }) {
   return (
     <Suspense
-      fallback={<div className="h-40 animate-pulse rounded-lg bg-muted/50" />}
+      fallback={<PageSkeleton label="Loading club settings" />}
     >
       <Settings params={params} />
     </Suspense>

@@ -14,7 +14,8 @@ import { SessionSetup } from "@/components/session/session-setup";
 import { StandingsTable } from "@/components/session/standings-table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { EmptyState } from "@/components/ui/empty-state";
+import { PageSkeleton } from "@/components/ui/skeleton";
 import { getSessionPageData } from "@/lib/db/queries";
 import { canShowPlayerLiveQr } from "@/lib/domain/live-board/live-board-url";
 import { canManageClub } from "@/lib/permissions";
@@ -28,7 +29,7 @@ export default function SessionPage({
   params: Promise<{ sessionId: string }>;
 }) {
   return (
-    <Suspense fallback={<div className="h-64 animate-pulse rounded-lg bg-muted/50" />}>
+    <Suspense fallback={<PageSkeleton label="Loading live session" />}>
       <LiveSession params={params} />
     </Suspense>
   );
@@ -62,26 +63,28 @@ async function LiveSession({
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex flex-wrap items-start justify-between gap-4">
+      <div className="retro-panel-raised retro-corners flex flex-wrap items-start justify-between gap-5 p-5 sm:p-6">
         <div className="flex flex-col gap-2">
           <Link
             href={`/clubs/${session.club_id}`}
-            className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
+            className="retro-back-link -ml-2 w-fit"
           >
             <ArrowLeft className="size-3.5" aria-hidden />
             {club?.name ?? "Club"}
           </Link>
           <div className="flex flex-wrap items-center gap-2">
-            <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">
+            <h1 className="retro-heading text-3xl sm:text-4xl">
               {session.name}
             </h1>
             <Badge
               variant={
                 session.status === "active"
-                  ? "default"
+                  ? "live"
                   : session.status === "draft"
-                    ? "outline"
-                    : "secondary"
+                    ? "draft"
+                    : session.status === "completed"
+                      ? "completed"
+                      : "danger"
               }
             >
               {session.status}
@@ -126,16 +129,19 @@ async function LiveSession({
       </div>
 
       {session.status === "draft" ? (
-        <p className="rounded-md border border-border bg-muted/40 px-4 py-3 text-sm text-muted-foreground">
+        <p className="rounded-lg border border-pikol-warning/30 bg-pikol-warning/10 px-4 py-3 text-sm text-pikol-warning">
           Start the session to activate the Player Live View and QR code.
         </p>
       ) : null}
 
       <div className="grid gap-6 lg:grid-cols-[1.6fr_1fr]">
         <section aria-labelledby="courts" className="flex flex-col gap-4">
-          <h2 id="courts" className="text-lg font-medium">
+          <div>
+            <p className="retro-kicker">Court grid</p>
+            <h2 id="courts" className="retro-section-title mt-2">
             Courts
-          </h2>
+            </h2>
+          </div>
           <div className="grid gap-4 sm:grid-cols-2">
             {courts.map((court) => (
               <CourtCard
@@ -187,14 +193,14 @@ async function LiveSession({
       </section>
 
       <section aria-labelledby="history" className="flex flex-col gap-4">
-        <h2 id="history" className="text-lg font-medium">
+        <h2 id="history" className="retro-section-title">
           Completed games
         </h2>
         <MatchHistory matches={history} />
       </section>
 
       <section aria-labelledby="standings" className="flex flex-col gap-4">
-        <h2 id="standings" className="text-lg font-medium">
+        <h2 id="standings" className="retro-section-title">
           Live standings
         </h2>
         {/*
@@ -205,11 +211,10 @@ async function LiveSession({
           board look broken on a freshly started session.
         */}
         {standings.length === 0 ? (
-          <Card>
-            <CardContent className="py-6 text-sm text-muted-foreground">
-              Nobody has checked in yet, so there is no standings table to show.
-            </CardContent>
-          </Card>
+          <EmptyState
+            title="No standings yet"
+            body="Nobody has checked in, so there is no standings table to show."
+          />
         ) : (
           <StandingsTable
             rows={standings}

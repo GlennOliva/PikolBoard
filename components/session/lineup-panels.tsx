@@ -91,10 +91,10 @@ export function LineupPanels({
 
       <section aria-labelledby="up-next-lineup" className="flex flex-col gap-3">
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <h2 id="up-next-lineup" className="text-lg font-medium">
+          <h2 id="up-next-lineup" className="retro-section-title">
             Up Next
           </h2>
-          {upNext ? <Badge variant="secondary">plays next</Badge> : null}
+          {upNext ? <Badge variant="up-next">plays next</Badge> : null}
         </div>
         {upNext ? (
           <LineupCard
@@ -138,7 +138,7 @@ export function LineupPanels({
 
       <section aria-labelledby="preparation" className="flex flex-col gap-3">
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <h2 id="preparation" className="text-lg font-medium">
+          <h2 id="preparation" className="retro-section-title">
             Preparation
           </h2>
           {preparing.length > 0 ? (
@@ -254,18 +254,31 @@ function LineupCard({
   const pending = (key: string) => busy === key;
 
   return (
-    <Card className={tone === "next" ? "border-primary/40" : undefined}>
+    <Card className={tone === "next" ? "retro-up-next" : "retro-preparing"}>
       <CardHeader className="flex-row items-center justify-between gap-2 space-y-0 pb-3">
         <CardTitle className="text-base">{group.label}</CardTitle>
-        <Badge variant={tone === "next" ? "default" : "outline"}>
+        <Badge variant={tone === "next" ? "up-next" : "preparing"}>
           {tone === "next" ? "Up next" : "Preparing"}
         </Badge>
       </CardHeader>
       <CardContent className="flex flex-col gap-4">
         <div className="grid grid-cols-2 gap-3">
           {([1, 2] as const).map((team) => (
-            <div key={team}>
-              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+            <div
+              key={team}
+              className={
+                team === 1
+                  ? "rounded-lg border border-pikol-cyan/25 bg-pikol-cyan/5 p-3"
+                  : "rounded-lg border border-pikol-pink/25 bg-pikol-pink/5 p-3"
+              }
+            >
+              <p
+                className={
+                  team === 1
+                    ? "text-xs font-semibold uppercase tracking-wide text-pikol-cyan"
+                    : "text-xs font-semibold uppercase tracking-wide text-pikol-pink"
+                }
+              >
                 Team {team}
               </p>
               <ul className="mt-1 flex flex-col gap-1">
@@ -278,7 +291,7 @@ function LineupCard({
                     >
                       <span
                         aria-hidden
-                        className="grid size-6 place-items-center rounded-full bg-muted text-[10px] font-semibold"
+                        className="grid size-6 place-items-center rounded-md border border-border bg-muted text-[10px] font-semibold"
                       >
                         {initialsOf(entry.display_name)}
                       </span>
@@ -300,7 +313,7 @@ function LineupCard({
           <div className="flex flex-wrap items-center gap-2 border-t border-border pt-3">
             <select
               aria-label={`Send ${group.label} to a court`}
-              className="h-9 rounded-md border border-input bg-transparent px-3 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
+              className="retro-select w-auto min-w-44"
               value=""
               disabled={courts.length === 0 || pending(keys.assign)}
               onChange={(event) => {

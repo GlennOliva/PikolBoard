@@ -55,8 +55,18 @@ export function CourtCard({
     : `Court ${court.court_number}`;
 
   return (
-    <Card>
-      <CardHeader className="flex-row items-center justify-between gap-2 space-y-0 pb-3">
+    <Card
+      className={
+        court.status === "playing"
+          ? "border-pikol-success/40"
+          : court.status === "staged"
+            ? "retro-staged"
+            : court.status === "disabled"
+              ? "opacity-70"
+              : undefined
+      }
+    >
+      <CardHeader className="flex-row items-center justify-between gap-2 space-y-0 border-b border-border/60 pb-4">
         <CardTitle className="text-base">{label}</CardTitle>
         <CourtStatusBadge status={court.status} />
       </CardHeader>
@@ -84,13 +94,13 @@ export function CourtCard({
 function CourtStatusBadge({ status }: { status: CourtView["status"] }) {
   switch (status) {
     case "playing":
-      return <Badge>playing</Badge>;
+      return <Badge variant="playing">playing</Badge>;
     case "staged":
-      return <Badge variant="secondary">staged</Badge>;
+      return <Badge variant="preparing">staged</Badge>;
     case "disabled":
-      return <Badge variant="outline">out of service</Badge>;
+      return <Badge variant="danger">out of service</Badge>;
     default:
-      return <Badge variant="outline">available</Badge>;
+      return <Badge variant="success">available</Badge>;
   }
 }
 
@@ -112,17 +122,17 @@ function MatchBody({
         {match.display_name?.trim() || `Match ${match.match_number}`}
       </p>
       <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2">
-        <TeamList players={team1} align="right" />
+        <TeamList label="Team 1" players={team1} align="right" />
         <div className="flex flex-col items-center px-1">
           {match.status === "completed" || match.status === "playing" ? (
-            <span className="text-sm font-semibold tabular-nums">
+            <span className="rounded-md bg-foreground px-2 py-1 text-base font-semibold tabular-nums text-background">
               {match.team1_score ?? 0}–{match.team2_score ?? 0}
             </span>
           ) : (
             <span className="text-xs text-muted-foreground">vs</span>
           )}
         </div>
-        <TeamList players={team2} align="left" />
+        <TeamList label="Team 2" players={team2} align="left" />
       </div>
 
       {match.explanation ? (
@@ -146,35 +156,49 @@ function MatchBody({
 }
 
 function TeamList({
+  label,
   players,
   align,
 }: {
+  label: string;
   players: MatchWithPlayers["players"];
   align: "left" | "right";
 }) {
   if (players.length === 0) {
-    return <span className="text-sm text-muted-foreground">—</span>;
+    return (
+      <div className={align === "right" ? "text-right" : "text-left"}>
+        <p className="text-[0.65rem] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+          {label}
+        </p>
+        <span className="text-sm text-muted-foreground">—</span>
+      </div>
+    );
   }
 
   return (
-    <ul
-      className={
-        "flex flex-col gap-1 " +
-        (align === "right" ? "items-end" : "items-start")
-      }
-    >
-      {players.map((player) => (
-        <li key={player.id} className="flex items-center gap-2 text-sm">
-          <span
-            aria-hidden
-            className="grid size-6 place-items-center rounded-full bg-muted text-[10px] font-semibold"
-          >
-            {initialsOf(player.display_name ?? "?")}
-          </span>
-          {player.display_name ?? "Unknown"}
-        </li>
-      ))}
-    </ul>
+    <div className={align === "right" ? "text-right" : "text-left"}>
+      <p className="text-[0.65rem] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+        {label}
+      </p>
+      <ul
+        className={
+          "mt-1 flex flex-col gap-1 " +
+          (align === "right" ? "items-end" : "items-start")
+        }
+      >
+        {players.map((player) => (
+          <li key={player.id} className="flex items-center gap-2 text-sm">
+            <span
+              aria-hidden
+              className="grid size-6 place-items-center rounded-md border border-border bg-muted text-[10px] font-semibold text-pikol-cyan"
+            >
+              {initialsOf(player.display_name ?? "?")}
+            </span>
+            {player.display_name ?? "Unknown"}
+          </li>
+        ))}
+      </ul>
+    </div>
   );
 }
 

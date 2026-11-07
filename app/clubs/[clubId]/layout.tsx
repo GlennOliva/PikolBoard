@@ -3,6 +3,7 @@ import { Suspense } from "react";
 import { getClubById } from "@/lib/db/queries";
 import { canManageClub, roleLabel } from "@/lib/permissions";
 import { Badge } from "@/components/ui/badge";
+import { PageSkeleton } from "@/components/ui/skeleton";
 import { ClubTabs } from "@/components/clubs/club-tabs";
 
 /**
@@ -19,7 +20,7 @@ export default function ClubLayout({
   params: Promise<{ clubId: string }>;
 }) {
   return (
-    <Suspense fallback={<div className="h-32 animate-pulse rounded-lg bg-muted/50" />}>
+    <Suspense fallback={<PageSkeleton label="Loading club" />}>
       <ClubShell params={params}>{children}</ClubShell>
     </Suspense>
   );
@@ -38,20 +39,21 @@ async function ClubShell({
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex flex-col gap-3">
+      <div className="retro-panel-raised retro-corners flex flex-col gap-3 p-5 sm:p-6">
+        <p className="retro-kicker">Club control</p>
         <div className="flex flex-wrap items-center gap-2">
-          <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">
+          <h1 className="retro-heading text-3xl sm:text-4xl">
             {club.name}
           </h1>
           {club.viewer_role ? (
-            <Badge variant={club.viewer_role === "owner" ? "default" : "secondary"}>
+            <Badge variant={club.viewer_role === "owner" ? "up-next" : "secondary"}>
               {roleLabel(club.viewer_role)}
             </Badge>
           ) : null}
           {club.is_public ? (
-            <Badge variant="outline">public board</Badge>
+            <Badge variant="success">public board</Badge>
           ) : (
-            <Badge variant="outline">private</Badge>
+            <Badge variant="warning">private</Badge>
           )}
         </div>
         {club.location ? (

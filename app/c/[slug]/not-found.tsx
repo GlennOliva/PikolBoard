@@ -8,10 +8,11 @@ import { Card, CardContent } from "@/components/ui/card";
  */
 export default function ClubNotFound() {
   return (
-    <Card>
+    <Card className="retro-corners mx-auto max-w-2xl">
       <CardContent className="flex flex-col items-start gap-4 py-12">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Club not found</h1>
+          <p className="retro-kicker">Public board unavailable</p>
+          <h1 className="retro-heading mt-3 text-3xl">Club not found</h1>
           <p className="mt-2 max-w-prose text-sm text-muted-foreground">
             No public club matches this link. Check the address you were sent,
             because the club may not be published.

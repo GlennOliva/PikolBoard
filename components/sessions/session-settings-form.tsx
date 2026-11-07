@@ -51,7 +51,7 @@ export function SessionSettingsForm({
       <input type="hidden" name="sessionId" value={sessionId} />
       <FormError state={state} />
       {state.ok ? (
-        <p className="rounded-md border border-emerald-500/30 bg-emerald-500/10 px-3 py-2 text-sm text-emerald-700 dark:text-emerald-400">
+        <p className="rounded-md border border-pikol-success/30 bg-pikol-success/10 px-3 py-2 text-sm text-pikol-success">
           Saved.
         </p>
       ) : null}
@@ -118,7 +118,7 @@ export function SessionSettingsForm({
           type="checkbox"
           name="isPublic"
           defaultChecked={isPublic}
-          className="mt-0.5 size-4 rounded border-input"
+          className="retro-checkbox"
         />
         <span>
           Publish a public live board. Anyone with the link can see courts and
@@ -131,7 +131,7 @@ export function SessionSettingsForm({
           type="checkbox"
           name="resultsPublished"
           defaultChecked={resultsPublished}
-          className="mt-0.5 size-4 rounded border-input"
+          className="retro-checkbox"
         />
         <span>
           Publish final results on the public board. Turn this on when the

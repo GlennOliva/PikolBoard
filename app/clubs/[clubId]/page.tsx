@@ -4,6 +4,8 @@ import { Suspense } from "react";
 import { ArrowRight, CalendarDays, QrCode, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { EmptyState } from "@/components/ui/empty-state";
+import { PageSkeleton } from "@/components/ui/skeleton";
 import { getClubById, getClubSessions, getRoster } from "@/lib/db/queries";
 import { canManageClub } from "@/lib/permissions";
 import { formatSessionWindow } from "@/lib/format";
@@ -17,7 +19,7 @@ export default function ClubOverviewPage({
 }) {
   return (
     <Suspense
-      fallback={<div className="h-40 animate-pulse rounded-lg bg-muted/50" />}
+      fallback={<PageSkeleton label="Loading club overview" />}
     >
       <Overview params={params} />
     </Suspense>
@@ -39,13 +41,13 @@ async function Overview({ params }: { params: Promise<{ clubId: string }> }) {
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="grid gap-4 sm:grid-cols-2">
-        <Card>
+      <div className="grid gap-4 sm:grid-cols-[0.85fr_1.15fr]">
+        <Card className="retro-grid-card">
           <CardHeader>
-            <CardTitle className="text-base">Roster</CardTitle>
+            <CardTitle className="text-base uppercase tracking-[0.1em] text-muted-foreground">Roster</CardTitle>
           </CardHeader>
           <CardContent className="flex items-center justify-between gap-4">
-            <p className="text-3xl font-semibold">{roster.length}</p>
+            <p className="text-4xl font-semibold tabular-nums text-pikol-cyan">{roster.length}</p>
             <Button asChild size="sm" variant="outline">
               <Link href={`/clubs/${clubId}/players`}>
                 <Users className="mr-2 size-4" aria-hidden />
@@ -55,12 +57,12 @@ async function Overview({ params }: { params: Promise<{ clubId: string }> }) {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className={live.length > 0 ? "border-pikol-cyan/35" : undefined}>
           <CardHeader>
-            <CardTitle className="text-base">Live now</CardTitle>
+            <CardTitle className="text-base uppercase tracking-[0.1em] text-muted-foreground">Live now</CardTitle>
           </CardHeader>
           <CardContent className="flex items-center justify-between gap-4">
-            <p className="text-3xl font-semibold">{live.length}</p>
+            <p className="text-4xl font-semibold tabular-nums text-pikol-cyan">{live.length}</p>
             {live.length > 0 ? (
               <div className="flex flex-wrap justify-end gap-2">
                 {live.map((s) => (
@@ -101,28 +103,29 @@ async function Overview({ params }: { params: Promise<{ clubId: string }> }) {
         </Card>
       ) : null}
 
-      <section aria-labelledby="recent-sessions">
-        <h2 id="recent-sessions" className="text-lg font-medium">
+      <section aria-labelledby="recent-sessions" className="flex flex-col gap-3">
+        <h2 id="recent-sessions" className="retro-section-title">
           Recent sessions
         </h2>
         {sessions.length === 0 ? (
-          <p className="mt-2 text-sm text-muted-foreground">
-            No sessions yet.{" "}
-            {canManage ? (
+          <EmptyState
+            title="No sessions yet"
+            body="Create a session to check players in, build matches, and open the live board."
+            action={canManage ? (
               <Link
                 href={`/clubs/${clubId}/sessions`}
-                className="underline underline-offset-4"
+                className="text-sm font-medium text-primary underline underline-offset-4"
               >
-                Start one
+                Create the first session
               </Link>
-            ) : null}
-          </p>
+            ) : undefined}
+          />
         ) : (
-          <ul className="mt-3 flex flex-col gap-2">
+          <ul className="flex flex-col gap-2">
             {sessions.slice(0, 5).map((session) => (
               <li
                 key={session.id}
-                className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border px-4 py-3"
+                className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border bg-card/65 px-4 py-3 transition-colors hover:border-pikol-cyan/35"
               >
                 <div>
                   <p className="font-medium">{session.name}</p>

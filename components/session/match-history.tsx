@@ -1,4 +1,4 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { formatElapsed, durationMs } from "@/lib/domain/session/match-timer";
 import type { MatchWithPlayers } from "@/lib/db/queries";
 
@@ -13,9 +13,6 @@ import type { MatchWithPlayers } from "@/lib/db/queries";
 export function MatchHistory({ matches }: { matches: MatchWithPlayers[] }) {
   return (
     <Card>
-      <CardHeader>
-        <CardTitle className="text-base">Completed games</CardTitle>
-      </CardHeader>
       <CardContent className={matches.length === 0 ? "py-6 text-sm text-muted-foreground" : "p-0"}>
         {matches.length === 0 ? (
           <p>

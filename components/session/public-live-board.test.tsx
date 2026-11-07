@@ -1,5 +1,6 @@
 // @vitest-environment jsdom
 import { cleanup, render, screen, within } from "@testing-library/react";
+import { renderToString } from "react-dom/server";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { PublicLiveBoard } from "./public-live-board";
 import type {
@@ -200,6 +201,63 @@ describe("player Live Board", () => {
     expect(screen.getByText("Balanced")).toBeTruthy();
   });
 
+  it("renders the supplied PikolGo wordmark with the correct alt text", () => {
+    render(board());
+    const logo = screen.getByRole("img", { name: "PikolGo" });
+    expect(logo.getAttribute("src")).toContain("pikolgo_logo");
+    expect(logo.getAttribute("width")).toBe("2172");
+    expect(logo.getAttribute("height")).toBe("724");
+    expect(logo.parentElement?.className).toContain("retro-logo-plate");
+  });
+
+  it("renders every public-board section", () => {
+    render(board());
+    for (const section of ["summary", "courts", "ready", "up-next", "preparation", "queue", "leaderboard"]) {
+      expect(
+        document.querySelector(`[data-live-board-section="${section}"]`),
+      ).not.toBeNull();
+    }
+  });
+
+  it("uses the redesigned empty state in every empty section", () => {
+    const { container } = render(
+      board({
+        courts: [],
+        lineups: [],
+        upNext: [],
+        preparation: [],
+        presence: [],
+        standings: [],
+      }),
+    );
+
+    expect(
+      container.querySelectorAll('[data-empty-state="true"]'),
+    ).toHaveLength(6);
+    expect(screen.getByText("No match is currently playing.")).toBeTruthy();
+    expect(screen.getByText("No lineup is waiting on a court.")).toBeTruthy();
+    expect(screen.getByText("The organizer is preparing the next matchup.")).toBeTruthy();
+    expect(screen.getByText("No additional lineups are being prepared.")).toBeTruthy();
+    expect(screen.getByText("Nobody has checked in yet.")).toBeTruthy();
+    expect(screen.getByText("Nobody is on the session roster yet.")).toBeTruthy();
+  });
+
+  it("contains tables that scroll inside their own cards", () => {
+    render(board());
+    const queue = screen.getByTestId("waiting-queue-table");
+    const standings = screen.getByTestId("standings-table");
+    expect(queue.parentElement?.className).toContain("overflow-x-auto");
+    expect(standings.parentElement?.className).toContain("overflow-x-auto");
+    expect(queue.className).toContain("min-w-");
+    expect(standings.className).toContain("min-w-");
+  });
+
+  it("server-renders hydration-safe timer placeholders", () => {
+    const html = renderToString(board());
+    expect(html).toContain("--:--");
+    expect(html).toContain("Waiting --:--");
+  });
+
   it("shows only active courts, current score, teams, and persisted timer", () => {
     render(board());
     const section = document.querySelector('[data-live-board-section="courts"]') as HTMLElement;
@@ -263,6 +321,18 @@ describe("player Live Board", () => {
     for (const label of ["Start Match", "Complete Match", "Edit Score", "Check In another player", "Change queue order", "End Session", "Session Settings"]) {
       expect(screen.queryByText(label, { exact: false })).toBeNull();
     }
+    expect(screen.queryAllByRole("button")).toHaveLength(0);
+    expect(document.querySelectorAll("form")).toHaveLength(0);
+  });
+
+  it("does not expose capability, identity, or authentication data", () => {
+    const { container } = render(board());
+    const text = container.textContent ?? "";
+
+    expect(text).not.toContain(session.id);
+    expect(text).not.toContain(session.club_id);
+    expect(text).not.toContain("@");
+    expect(container.querySelector('input[type="hidden"]')).toBeNull();
   });
 
   it("moves from no active match to a playing match after a realtime refresh", () => {

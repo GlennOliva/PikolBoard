@@ -39,7 +39,7 @@ export function RosterList({
   editable?: boolean;
 }) {
   return (
-    <ul className="flex flex-col divide-y divide-border rounded-lg border border-border">
+    <ul className="flex flex-col divide-y divide-border overflow-hidden rounded-xl border border-border bg-card/65">
       {players.map((player) => (
         <RosterRow key={player.id} player={player} editable={editable} />
       ))}
@@ -62,12 +62,12 @@ function RosterRow({ player, editable }: { player: Player; editable: boolean }) 
     <li
       className={
         "flex flex-wrap items-center gap-3 px-4 py-3 " +
-        (player.is_active ? "" : "opacity-60")
+        (player.is_active ? "hover:bg-muted/35" : "opacity-60")
       }
     >
       <span
         aria-hidden
-        className="grid size-9 shrink-0 place-items-center rounded-full bg-muted text-xs font-semibold"
+        className="grid size-9 shrink-0 place-items-center rounded-lg border border-border bg-muted text-xs font-semibold text-pikol-cyan"
       >
         {initialsOf(player.display_name)}
       </span>
@@ -131,7 +131,7 @@ function EditPlayerForm({
             id={`skill-${player.id}`}
             name="skillLevel"
             defaultValue={String(player.skill_level)}
-            className="h-9 rounded-md border border-input bg-transparent px-3 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
+            className="retro-select"
           >
             {Object.entries(SKILL_LABELS).map(([value, label]) => (
               <option key={value} value={value}>

@@ -55,40 +55,43 @@ export function StandingsTable({
   );
 
   return (
-    <Card>
-      <CardContent className="overflow-x-auto">
-        <table className="w-full min-w-[42rem] text-sm">
+    <Card className="overflow-hidden">
+      <CardContent className="overflow-x-auto p-0">
+        <table
+          className="w-full min-w-[46rem] text-sm"
+          data-testid="standings-table"
+        >
           <caption className="sr-only">{caption}</caption>
           <thead>
-            <tr className="border-b border-border text-left text-xs uppercase tracking-wide text-muted-foreground">
-              <th scope="col" className="py-2 pr-2">
+            <tr className="retro-table-head border-b text-left text-[0.65rem] uppercase tracking-[0.14em]">
+              <th scope="col" className="px-3 py-2.5 font-semibold">
                 Rank
               </th>
-              <th scope="col" className="py-2 pr-2">
+              <th scope="col" className="px-3 py-2.5 font-semibold">
                 Player
               </th>
-              <th scope="col" className="py-2 pr-2">
+              <th scope="col" className="px-3 py-2.5 font-semibold">
                 Qualification
               </th>
-              <th scope="col" className="py-2 pr-2 text-right">
+              <th scope="col" className="px-3 py-2.5 text-right font-semibold">
                 G
               </th>
-              <th scope="col" className="py-2 pr-2 text-right">
+              <th scope="col" className="px-3 py-2.5 text-right font-semibold">
                 W
               </th>
-              <th scope="col" className="py-2 pr-2 text-right">
+              <th scope="col" className="px-3 py-2.5 text-right font-semibold">
                 L
               </th>
-              <th scope="col" className="py-2 pr-2 text-right">
+              <th scope="col" className="px-3 py-2.5 text-right font-semibold">
                 Win %
               </th>
-              <th scope="col" className="py-2 pr-2 text-right">
+              <th scope="col" className="px-3 py-2.5 text-right font-semibold">
                 PF
               </th>
-              <th scope="col" className="py-2 pr-2 text-right">
+              <th scope="col" className="px-3 py-2.5 text-right font-semibold">
                 PA
               </th>
-              <th scope="col" className="py-2 text-right">
+              <th scope="col" className="px-3 py-2.5 text-right font-semibold">
                 Diff
               </th>
             </tr>
@@ -101,18 +104,21 @@ export function StandingsTable({
                 <tr
                   key={row.playerId}
                   className={cn(
-                    "border-b border-border/60 last:border-0",
+                    "border-b border-pikol-border/60 transition-colors last:border-0",
+                    entry.podium === null
+                      ? "odd:bg-card/80 even:bg-pikol-surface/40 hover:bg-pikol-cyan/5"
+                      : "hover:bg-pikol-cyan/5",
                     podiumRowClass(entry.podium),
                   )}
                 >
-                  <td className="py-2 pr-2 tabular-nums">
+                  <td className="px-3 py-2.5 tabular-nums">
                     <RankCell
                       medal={entry.medal}
                       label={entry.rankLabel}
                       podium={entry.podium}
                     />
                   </td>
-                  <td className="py-2 pr-2">
+                  <td className="px-3 py-2.5">
                     <span className="flex items-center gap-2">
                       <span
                         aria-hidden
@@ -123,27 +129,27 @@ export function StandingsTable({
                       {row.display_name}
                     </span>
                   </td>
-                  <td className="py-2 pr-2">
+                  <td className="px-3 py-2.5">
                     <QualificationBadge
                       qualified={entry.qualified}
                       label={entry.qualificationLabel}
                     />
                   </td>
-                  <td className="py-2 pr-2 text-right tabular-nums">
+                  <td className="px-3 py-2.5 text-right tabular-nums">
                     {row.games_played}
                   </td>
-                  <td className="py-2 pr-2 text-right tabular-nums">{row.wins}</td>
-                  <td className="py-2 pr-2 text-right tabular-nums">{row.losses}</td>
-                  <td className="py-2 pr-2 text-right tabular-nums text-muted-foreground">
+                  <td className="px-3 py-2.5 text-right tabular-nums">{row.wins}</td>
+                  <td className="px-3 py-2.5 text-right tabular-nums">{row.losses}</td>
+                  <td className="px-3 py-2.5 text-right tabular-nums text-muted-foreground">
                     {winPercent(row)}
                   </td>
-                  <td className="py-2 pr-2 text-right tabular-nums">
+                  <td className="px-3 py-2.5 text-right tabular-nums">
                     {row.points_for}
                   </td>
-                  <td className="py-2 pr-2 text-right tabular-nums text-muted-foreground">
+                  <td className="px-3 py-2.5 text-right tabular-nums text-muted-foreground">
                     {row.points_against}
                   </td>
-                  <td className="py-2 text-right tabular-nums text-muted-foreground">
+                  <td className="px-3 py-2.5 text-right tabular-nums text-muted-foreground">
                     {formatPointDifferential(pointDifferential(row))}
                   </td>
                 </tr>
@@ -203,9 +209,9 @@ function podiumPlaceName(podium: PodiumPlace | null): string {
  * tiers.
  */
 function podiumRowClass(podium: PodiumPlace | null): string {
-  if (podium === 1) return "bg-amber-500/10 border-l-2 border-l-amber-500";
-  if (podium === 2) return "bg-slate-400/10 border-l-2 border-l-slate-400";
-  if (podium === 3) return "bg-orange-700/10 border-l-2 border-l-orange-700";
+  if (podium === 1) return "retro-podium-gold";
+  if (podium === 2) return "retro-podium-silver";
+  if (podium === 3) return "retro-podium-bronze";
   return "";
 }
 
@@ -226,10 +232,10 @@ function QualificationBadge({
   return (
     <span
       className={cn(
-        "inline-flex items-center rounded-full px-2 py-0.5 text-xs whitespace-nowrap",
+        "inline-flex items-center rounded-full border px-2 py-0.5 text-xs whitespace-nowrap",
         qualified
-          ? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-300"
-          : "text-muted-foreground",
+          ? "border-pikol-success/35 bg-pikol-success/10 text-pikol-success"
+          : "border-border bg-muted/40 text-muted-foreground",
       )}
     >
       {qualified ? <span className="sr-only">Podium status: </span> : null}

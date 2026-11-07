@@ -6,6 +6,8 @@ import { SessionSettingsForm } from "@/components/sessions/session-settings-form
 import { Button } from "@/components/ui/button";
 import { getClubById, getSessionBundle } from "@/lib/db/queries";
 import { canManageClub } from "@/lib/permissions";
+import { Card, CardContent } from "@/components/ui/card";
+import { PageSkeleton } from "@/components/ui/skeleton";
 
 export const metadata = { title: "Session settings" };
 
@@ -15,7 +17,7 @@ export default function SessionSettingsPage({
   params: Promise<{ sessionId: string }>;
 }) {
   return (
-    <Suspense fallback={<div className="h-40 animate-pulse rounded-lg bg-muted/50" />}>
+    <Suspense fallback={<PageSkeleton label="Loading session settings" />}>
       <Settings params={params} />
     </Suspense>
   );
@@ -35,26 +37,31 @@ async function Settings({ params }: { params: Promise<{ sessionId: string }> }) 
       <div>
         <Link
           href={`/sessions/${session.id}`}
-          className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
+          className="retro-back-link -ml-2"
         >
           <ArrowLeft className="size-3.5" aria-hidden />
           Back to session
         </Link>
-        <h1 className="mt-3 text-2xl font-semibold tracking-tight sm:text-3xl">
+        <p className="retro-kicker mt-4">Session configuration</p>
+        <h1 className="retro-heading mt-3 text-3xl sm:text-4xl">
           {session.name} settings
         </h1>
       </div>
 
-      <SessionSettingsForm
-        sessionId={session.id}
-        name={session.name}
-        courtCount={session.court_count}
-        maxGames={session.max_games}
-        starvationMinutes={session.starvation_threshold_minutes}
-        isPublic={session.is_public}
-        resultsPublished={session.results_published}
-        canManage={canManageClub(club)}
-      />
+      <Card>
+        <CardContent className="pt-5 sm:pt-6">
+          <SessionSettingsForm
+            sessionId={session.id}
+            name={session.name}
+            courtCount={session.court_count}
+            maxGames={session.max_games}
+            starvationMinutes={session.starvation_threshold_minutes}
+            isPublic={session.is_public}
+            resultsPublished={session.results_published}
+            canManage={canManageClub(club)}
+          />
+        </CardContent>
+      </Card>
 
       {session.is_public ? (
         <div>

@@ -72,7 +72,7 @@ export function ShareSession({ url }: { url: string }) {
             readOnly
             value={url}
             onFocus={(e) => e.currentTarget.select()}
-            className="h-9 w-full rounded-md border border-input bg-transparent px-3 font-mono text-xs"
+            className="retro-select font-mono text-xs"
           />
         </DialogContent>
       </Dialog>

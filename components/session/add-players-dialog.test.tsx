@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 import { AddPlayersDialog } from "./add-players-dialog";
 
@@ -77,5 +77,23 @@ describe("AddPlayersDialog", () => {
     expect(
       screen.getByRole("button", { name: "Create and add player" }),
     ).toBeTruthy();
+  });
+
+  it("traps focus while open and restores it to the trigger on Escape", async () => {
+    render(
+      <AddPlayersDialog
+        sessionId="session-1"
+        availablePlayers={availablePlayers}
+      />,
+    );
+
+    const trigger = screen.getByRole("button", { name: "Add players" });
+    fireEvent.click(trigger);
+    const dialog = await screen.findByRole("dialog", { name: "Add players" });
+    expect(dialog.contains(document.activeElement)).toBe(true);
+
+    fireEvent.keyDown(document, { key: "Escape" });
+    await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
+    await waitFor(() => expect(document.activeElement).toBe(trigger));
   });
 });

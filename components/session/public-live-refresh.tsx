@@ -120,7 +120,7 @@ export function PublicLiveRefresh({
           aria-hidden
           className={cn(
             "size-2 rounded-full",
-            live ? "bg-emerald-500" : "animate-pulse bg-amber-500",
+            live ? "bg-pikol-success" : "animate-pulse bg-pikol-warning",
           )}
         />
         {live ? "Live" : "Reconnecting…"}

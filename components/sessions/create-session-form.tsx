@@ -80,7 +80,7 @@ export function CreateSessionForm({ clubId }: { clubId: string }) {
             name="format"
             value={format}
             onChange={(e) => setFormat(e.target.value)}
-            className="h-9 rounded-md border border-input bg-transparent px-3 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
+            className="retro-select"
           >
             {FORMATS.map((f) => (
               <option key={f.value} value={f.value}>
@@ -98,7 +98,7 @@ export function CreateSessionForm({ clubId }: { clubId: string }) {
           name="matchingMode"
           value={mode}
           onChange={(e) => setMode(e.target.value)}
-          className="h-9 rounded-md border border-input bg-transparent px-3 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
+          className="retro-select"
         >
           {MODES.map((m) => (
             <option key={m.value} value={m.value}>
@@ -125,7 +125,7 @@ export function CreateSessionForm({ clubId }: { clubId: string }) {
             id="targetScore"
             name="targetScore"
             defaultValue="11"
-            className="h-9 rounded-md border border-input bg-transparent px-3 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
+            className="retro-select"
           >
             {SCORES.map((s) => (
               <option key={s} value={s}>
@@ -141,7 +141,7 @@ export function CreateSessionForm({ clubId }: { clubId: string }) {
             id="winBy"
             name="winBy"
             defaultValue="2"
-            className="h-9 rounded-md border border-input bg-transparent px-3 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
+            className="retro-select"
           >
             {WIN_BY.map((w) => (
               <option key={w} value={w}>
@@ -199,7 +199,7 @@ export function CreateSessionForm({ clubId }: { clubId: string }) {
         <input
           type="checkbox"
           name="isPublic"
-          className="mt-0.5 size-4 rounded border-input"
+          className="retro-checkbox"
         />
         <span>
           Publish a shareable live board for this session. You can turn it on

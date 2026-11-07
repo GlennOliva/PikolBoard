@@ -4,6 +4,7 @@ import { z } from "zod";
 import { PublicLiveBoard } from "@/components/session/public-live-board";
 import { DraftLiveView, UnavailableLiveView } from "@/components/session/player-live-notice";
 import { getPlayerLiveBoard } from "@/lib/db/queries";
+import { PageSkeleton } from "@/components/ui/skeleton";
 
 export const metadata: Metadata = { title: "Player Live View" };
 
@@ -13,7 +14,7 @@ export default function PlayerLivePage({
   params: Promise<{ publicToken: string }>;
 }) {
   return (
-    <Suspense fallback={<div className="h-96 animate-pulse rounded-2xl bg-muted/50" />}>
+    <Suspense fallback={<PageSkeleton label="Loading player live view" />}>
       <PlayerLiveContent params={params} />
     </Suspense>
   );

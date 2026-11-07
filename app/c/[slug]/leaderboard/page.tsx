@@ -5,6 +5,9 @@ import { Suspense } from "react";
 import { ArrowLeft, Trophy } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
+import { EmptyState } from "@/components/ui/empty-state";
+import { PageSkeleton } from "@/components/ui/skeleton";
+import { cn } from "@/lib/utils";
 import { getPublicClub, getPublicClubResults } from "@/lib/db/queries";
 import { rankPlayers, type PlayerGameRow } from "@/lib/domain/leaderboard/rank-players";
 import { initialsOf } from "@/lib/format";
@@ -25,7 +28,7 @@ export default function PublicLeaderboardPage({
   params: Promise<{ slug: string }>;
 }) {
   return (
-    <Suspense fallback={<div className="h-64 animate-pulse rounded-lg bg-muted/50" />}>
+    <Suspense fallback={<PageSkeleton label="Loading leaderboard" />}>
       <Leaderboard params={params} />
     </Suspense>
   );
@@ -64,12 +67,13 @@ async function Leaderboard({
       <div>
         <Link
           href={`/c/${club.slug}`}
-          className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
+          className="retro-back-link -ml-2"
         >
           <ArrowLeft className="size-3.5" aria-hidden />
           {club.name}
         </Link>
-        <h1 className="mt-3 flex items-center gap-2 text-2xl font-semibold tracking-tight sm:text-3xl">
+        <p className="retro-kicker mt-4">Published results</p>
+        <h1 className="retro-heading mt-3 flex items-center gap-2 text-3xl sm:text-4xl">
           <Trophy className="size-6 text-primary" aria-hidden />
           All-time leaderboard
         </h1>
@@ -80,12 +84,10 @@ async function Leaderboard({
       </div>
 
       {ranked.length === 0 ? (
-        <Card>
-          <CardContent className="py-8 text-sm text-muted-foreground">
-            No published results yet. Organizers publish final results when a
-            session ends.
-          </CardContent>
-        </Card>
+        <EmptyState
+          title="No published results yet"
+          body="Organizers publish final results when a session ends."
+        />
       ) : (
         <Card>
           <CardContent className="overflow-x-auto">
@@ -117,7 +119,19 @@ async function Leaderboard({
               </thead>
               <tbody>
                 {ranked.map((player) => (
-                  <tr key={player.playerId} className="border-b border-border/60 last:border-0">
+                  <tr
+                    key={player.playerId}
+                    className={cn(
+                      "border-b border-border/60 transition-colors hover:bg-muted/25 last:border-0",
+                      player.rank === 1
+                        ? "retro-podium-gold"
+                        : player.rank === 2
+                          ? "retro-podium-silver"
+                          : player.rank === 3
+                            ? "retro-podium-bronze"
+                            : undefined,
+                    )}
+                  >
                     <td className="py-2 pr-2 tabular-nums text-muted-foreground">
                       {player.rank}
                     </td>
@@ -131,7 +145,7 @@ async function Leaderboard({
                         </span>
                         {player.displayName}
                         {player.winStreak >= 3 ? (
-                          <Badge variant="secondary">
+                          <Badge variant="success">
                             {player.winStreak} in a row
                           </Badge>
                         ) : null}
@@ -147,7 +161,7 @@ async function Leaderboard({
                       className={
                         "py-2 pr-2 text-right tabular-nums " +
                         (player.pointDifferential > 0
-                          ? "text-emerald-600 dark:text-emerald-400"
+                          ? "text-pikol-success"
                           : player.pointDifferential < 0
                             ? "text-destructive"
                             : "")

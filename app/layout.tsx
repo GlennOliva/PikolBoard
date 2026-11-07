@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
-import { Geist } from "next/font/google";
+import { Geist_Mono } from "next/font/google";
 import { ThemeProvider } from "next-themes";
+import { RetroBackground } from "@/components/layout/retro-background";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { productConfig, siteUrl } from "@/lib/product-config";
@@ -8,37 +9,47 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl()),
-  // Product name and copy come from lib/product-config so a rename is one edit.
   title: {
     default: `${productConfig.name} — ${productConfig.tagline}`,
     template: `%s · ${productConfig.name}`,
   },
   description: productConfig.description,
   applicationName: productConfig.name,
+  category: "sports",
+  manifest: "/manifest.webmanifest",
+  icons: {
+    icon: [{ url: "/icon.png", type: "image/png", sizes: "512x512" }],
+    apple: [{ url: "/apple-icon.png", type: "image/png", sizes: "180x180" }],
+  },
+  formatDetection: {
+    email: false,
+    address: false,
+    telephone: false,
+  },
   openGraph: {
-    title: productConfig.name,
-    description: productConfig.tagline,
+    title: `${productConfig.name} — ${productConfig.tagline}`,
+    description: productConfig.description,
     siteName: productConfig.name,
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: productConfig.name,
-    description: productConfig.tagline,
+    title: `${productConfig.name} — ${productConfig.tagline}`,
+    description: productConfig.description,
     creator: productConfig.twitter,
   },
 };
 
 export const viewport: Viewport = {
-  // Comfortable tap targets matter more on a phone courtside than on a desk.
+  colorScheme: "light dark",
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "white" },
-    { media: "(prefers-color-scheme: dark)", color: "black" },
+    { media: "(prefers-color-scheme: light)", color: "#F6F4EC" },
+    { media: "(prefers-color-scheme: dark)", color: "#0B0B18" },
   ],
 };
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const geistMono = Geist_Mono({
+  variable: "--font-geist-mono",
   display: "swap",
   subsets: ["latin"],
 });
@@ -51,18 +62,17 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${geistSans.className} antialiased flex min-h-dvh flex-col`}
+        className={`${geistMono.variable} flex min-h-dvh flex-col antialiased`}
       >
         <ThemeProvider
           attribute="class"
-          defaultTheme="system"
+          defaultTheme="dark"
           enableSystem
           disableTransitionOnChange
         >
+          <RetroBackground />
           <SiteHeader />
-          <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-8 sm:py-10">
-            {children}
-          </main>
+          <main className="retro-page flex-1 py-8 sm:py-10">{children}</main>
           <SiteFooter />
         </ThemeProvider>
       </body>

@@ -5,6 +5,8 @@ import { MapPin, Plus, Users } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { EmptyState } from "@/components/ui/empty-state";
+import { PageSkeleton } from "@/components/ui/skeleton";
 import { getMyClubs } from "@/lib/db/queries";
 import { roleLabel } from "@/lib/permissions";
 import { createClient } from "@/lib/supabase/server";
@@ -38,9 +40,10 @@ async function Dashboard() {
 
   return (
     <div className="flex flex-col gap-8">
-      <div className="flex flex-wrap items-end justify-between gap-4">
+      <div className="flex flex-wrap items-end justify-between gap-5 border-b border-border/70 pb-6">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">
+          <p className="retro-kicker">Organizer console</p>
+          <h1 className="retro-heading mt-3 text-3xl sm:text-4xl">
             {firstName ? `Welcome back, ${firstName}` : "Your clubs"}
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
@@ -56,24 +59,20 @@ async function Dashboard() {
       </div>
 
       {clubs.length === 0 ? (
-        <Card>
-          <CardContent className="flex flex-col items-start gap-3 py-10">
-            <h2 className="text-lg font-medium">No clubs yet</h2>
-            <p className="max-w-prose text-sm text-muted-foreground">
-              Create a club to get a roster, sessions, and a shareable live
-              board. It takes about a minute: a name, a shareable link slug, and
-              the players who show up.
-            </p>
-            <Button asChild className="mt-2">
+        <EmptyState
+          title="No clubs yet"
+          body="Create a club to get a roster, sessions, and a shareable live board. It takes about a minute."
+          action={
+            <Button asChild>
               <Link href="/clubs/new">Create your first club</Link>
             </Button>
-          </CardContent>
-        </Card>
+          }
+        />
       ) : (
         <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {clubs.map((club) => (
             <li key={club.id}>
-              <Card className="h-full transition-colors hover:border-primary/50">
+              <Card className="retro-grid-card h-full transition-[transform,border-color] duration-200 ease-retro hover:-translate-y-0.5 hover:border-pikol-cyan/45">
                 <CardContent>
                   <div className="flex items-start justify-between gap-2">
                     <Link
@@ -84,7 +83,7 @@ async function Dashboard() {
                     </Link>
                     <Badge
                       variant={
-                        club.viewer_role === "owner" ? "default" : "secondary"
+                        club.viewer_role === "owner" ? "up-next" : "secondary"
                       }
                     >
                       {roleLabel(club.viewer_role)}
@@ -131,10 +130,7 @@ export default function ProtectedPage() {
   return (
     <Suspense
       fallback={
-        <div
-          className="h-40 animate-pulse rounded-lg bg-muted/50"
-          aria-hidden
-        />
+        <PageSkeleton label="Loading dashboard" />
       }
     >
       <Dashboard />

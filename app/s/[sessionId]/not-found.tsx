@@ -8,10 +8,11 @@ import { Card, CardContent } from "@/components/ui/card";
  */
 export default function LiveBoardNotFound() {
   return (
-    <Card>
+    <Card className="retro-corners mx-auto max-w-2xl">
       <CardContent className="flex flex-col items-start gap-4 py-12">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">
+          <p className="retro-kicker">Live-board signal lost</p>
+          <h1 className="retro-heading mt-3 text-3xl">
             This board is not available
           </h1>
           <p className="mt-2 max-w-prose text-sm text-muted-foreground">

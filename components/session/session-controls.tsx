@@ -6,6 +6,7 @@ import { Radio } from "lucide-react";
 import { FormError } from "@/components/forms/form-error";
 import { SubmitButton } from "@/components/forms/submit-button";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { endSessionAction } from "@/app/actions/session-actions";
 
 import {
@@ -103,10 +104,11 @@ export function SessionControls({
       ) : null}
 
       {status === "active" ? (
-        <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
+        <Badge variant="live">
+          <span className="retro-live-dot" aria-hidden />
           <Radio className="size-3" aria-hidden />
-          Session is Live
-        </span>
+          Session is live
+        </Badge>
       ) : null}
     </div>
   );

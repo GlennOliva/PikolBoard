@@ -70,8 +70,8 @@ describe("players below the threshold stay visible without medals", () => {
     expect(html).not.toContain("🥇");
     expect(html).not.toContain("🥈");
     expect(html).not.toContain("🥉");
-    expect(html).not.toContain("amber");
-    expect(html).not.toContain("slate-400");
+    expect(html).not.toContain("retro-podium-gold");
+    expect(html).not.toContain("retro-podium-silver");
   });
 
   it("spells out the shortfall with correct singular and plural wording", () => {
@@ -110,7 +110,7 @@ describe("a player is decorated the moment the fifth game lands", () => {
 
     expect(screen.getByText("Qualified")).toBeTruthy();
     expect(screen.getByText("🥇")).toBeTruthy();
-    expect(rowFor("AG").className).toContain("amber");
+    expect(rowFor("AG").className).toContain("retro-podium-gold");
   });
 
   it("recalculates the whole podium when a newcomer qualifies", () => {
@@ -135,7 +135,7 @@ describe("a player is decorated the moment the fifth game lands", () => {
     );
 
     expect(screen.getByText("🥈")).toBeTruthy();
-    expect(rowFor("JAYSON").className).toContain("slate");
+    expect(rowFor("JAYSON").className).toContain("retro-podium-silver");
     unmount();
   });
 });
@@ -155,9 +155,9 @@ describe("medal assignment", () => {
     expect(within(rowFor("JAYSON")).getByText("🥈")).toBeTruthy();
     expect(within(rowFor("MARIA")).getByText("🥉")).toBeTruthy();
 
-    expect(rowFor("AG").className).toContain("amber");
-    expect(rowFor("JAYSON").className).toContain("slate");
-    expect(rowFor("MARIA").className).toContain("orange");
+    expect(rowFor("AG").className).toContain("retro-podium-gold");
+    expect(rowFor("JAYSON").className).toContain("retro-podium-silver");
+    expect(rowFor("MARIA").className).toContain("retro-podium-bronze");
   });
 
   it("leaves the fourth qualified player undecorated", () => {
@@ -165,9 +165,9 @@ describe("medal assignment", () => {
       ...qualified,
       row({ player_id: "p5", display_name: "ZED", games_played: 5, wins: 1, losses: 4 }),
     ]);
-    expect(rowFor("ZED").className).not.toContain("amber");
-    expect(rowFor("ZED").className).not.toContain("slate");
-    expect(rowFor("ZED").className).not.toContain("orange");
+    expect(rowFor("ZED").className).not.toContain("retro-podium-gold");
+    expect(rowFor("ZED").className).not.toContain("retro-podium-silver");
+    expect(rowFor("ZED").className).not.toContain("retro-podium-bronze");
     // Still visible and still qualified.
     expect(within(rowFor("ZED")).getByText("Qualified")).toBeTruthy();
   });

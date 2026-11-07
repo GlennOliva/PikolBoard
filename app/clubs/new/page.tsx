@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { CreateClubForm } from "@/components/clubs/create-club-form";
+import { Card, CardContent } from "@/components/ui/card";
 
 export const metadata = { title: "New club" };
 
@@ -10,12 +11,13 @@ export default function NewClubPage() {
       <div>
         <Link
           href="/protected"
-          className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
+          className="retro-back-link -ml-2"
         >
           <ArrowLeft className="size-3.5" aria-hidden />
           Dashboard
         </Link>
-        <h1 className="mt-3 text-2xl font-semibold tracking-tight sm:text-3xl">
+        <p className="retro-kicker mt-4">Club initializer</p>
+        <h1 className="retro-heading mt-3 text-3xl sm:text-4xl">
           New club
         </h1>
         <p className="mt-1 text-sm text-muted-foreground">
@@ -24,7 +26,11 @@ export default function NewClubPage() {
         </p>
       </div>
 
-      <CreateClubForm />
+      <Card>
+        <CardContent className="pt-5 sm:pt-6">
+          <CreateClubForm />
+        </CardContent>
+      </Card>
     </div>
   );
 }

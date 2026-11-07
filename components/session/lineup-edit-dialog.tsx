@@ -1,9 +1,15 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import {
   courtLabel,
   moveSelection,
@@ -149,31 +155,15 @@ export function LineupEditDialog({
   const stagedCourt = courts.find((court) => court.id === match.court_id);
 
   return (
-    <div
-      role="dialog"
-      aria-modal="true"
-      aria-label={`Edit ${target?.label ?? "lineup"}`}
-      className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-background/80 p-4"
-    >
-      <div className="mt-10 w-full max-w-xl rounded-lg border bg-card p-5 shadow-lg">
-        <div className="flex items-start justify-between gap-3">
-          <div>
-            <h2 className="text-base font-medium">Edit lineup</h2>
-            <p className="text-sm text-muted-foreground">
-              {target?.label}
-              {stagedCourt ? ` · ${courtLabel(stagedCourt)}` : ""}
-            </p>
-          </div>
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            onClick={onClose}
-            aria-label="Close"
-          >
-            <X className="size-4" aria-hidden />
-          </Button>
-        </div>
+    <Dialog open onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="sm:max-w-xl">
+        <DialogHeader>
+          <DialogTitle>Edit {target?.label ?? "lineup"}</DialogTitle>
+          <DialogDescription>
+            {target?.label}
+            {stagedCourt ? ` · ${courtLabel(stagedCourt)}` : ""}
+          </DialogDescription>
+        </DialogHeader>
 
         <div className="mt-4 grid gap-3 sm:grid-cols-2">
           {slots.map((slot) => {
@@ -294,7 +284,7 @@ export function LineupEditDialog({
             {saving ? "Saving…" : "Save lineup"}
           </Button>
         </div>
-      </div>
-    </div>
+      </DialogContent>
+    </Dialog>
   );
 }

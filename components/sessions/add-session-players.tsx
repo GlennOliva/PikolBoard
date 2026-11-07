@@ -71,7 +71,7 @@ export function AddSessionPlayers({
           name="sessionId"
           value={sessionId}
           onChange={(e) => setSessionId(e.target.value)}
-          className="h-9 rounded-md border border-input bg-transparent px-3 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 sm:max-w-xs"
+          className="retro-select sm:max-w-xs"
         >
           {sessions.map((s) => (
             <option key={s.id} value={s.id}>

@@ -4,155 +4,482 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 0 0% 3.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 0 0% 3.9%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 3.9%;
-    --primary: 0 0% 9%;
-    --primary-foreground: 0 0% 98%;
-    --secondary: 0 0% 96.1%;
-    --secondary-foreground: 0 0% 9%;
-    --muted: 0 0% 96.1%;
-    --muted-foreground: 0 0% 45.1%;
-    --accent: 0 0% 96.1%;
-    --accent-foreground: 0 0% 9%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 89.8%;
-    --input: 0 0% 89.8%;
-    --ring: 0 0% 3.9%;
-    --chart-1: 12 76% 61%;
-    --chart-2: 173 58% 39%;
-    --chart-3: 197 37% 24%;
-    --chart-4: 43 74% 66%;
-    --chart-5: 27 87% 67%;
-    --radius: 0.5rem;
-  }
-  .dark {
-    --background: 0 0% 3.9%;
-    --foreground: 0 0% 98%;
-    --card: 0 0% 3.9%;
-    --card-foreground: 0 0% 98%;
-    --popover: 0 0% 3.9%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 0 0% 98%;
-    --primary-foreground: 0 0% 9%;
-    --secondary: 0 0% 14.9%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 0 0% 14.9%;
-    --muted-foreground: 0 0% 63.9%;
-    --accent: 0 0% 14.9%;
-    --accent-foreground: 0 0% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 14.9%;
-    --input: 0 0% 14.9%;
-    --ring: 0 0% 83.1%;
-    --chart-1: 220 70% 50%;
-    --chart-2: 160 60% 45%;
-    --chart-3: 30 80% 55%;
-    --chart-4: 280 65% 60%;
-    --chart-5: 340 75% 55%;
-  }
-}
+    color-scheme: light;
 
-@layer base {
+    /* PikolGo Retro-Futurism tokens: sunlit lavender terminal */
+    --pikol-bg: #f3f0f8;
+    --pikol-bg-deep: #e9e4f2;
+    --pikol-surface: #fbfaff;
+    --pikol-surface-raised: #ffffff;
+    --pikol-primary: #004fbf;
+    --pikol-secondary: #a30d6b;
+    --pikol-cyan: #006e7a;
+    --pikol-purple: #4a25b8;
+    --pikol-pink: #a61f98;
+    --pikol-silver: #6b6b75;
+    --pikol-gold: #7a5900;
+    --pikol-success: #076b42;
+    --pikol-warning: #7a5200;
+    --pikol-danger: #b81f3f;
+    --pikol-text: #12102a;
+    --pikol-text-muted: #5a5570;
+    --pikol-border: #c3bdd2;
+    --pikol-focus: #006e7a;
+
+    --pikol-bg-rgb: 243 240 248;
+    --pikol-deep-rgb: 233 228 242;
+    --pikol-surface-rgb: 251 250 255;
+    --pikol-raised-rgb: 255 255 255;
+    --pikol-primary-rgb: 0 79 191;
+    --pikol-secondary-rgb: 163 13 107;
+    --pikol-cyan-rgb: 0 110 122;
+    --pikol-purple-rgb: 74 37 184;
+    --pikol-pink-rgb: 166 31 152;
+    --pikol-silver-rgb: 107 107 117;
+    --pikol-gold-rgb: 122 89 0;
+    --pikol-success-rgb: 7 107 66;
+    --pikol-warning-rgb: 122 82 0;
+    --pikol-danger-rgb: 184 31 63;
+    --pikol-text-rgb: 18 16 42;
+    --pikol-muted-rgb: 90 85 112;
+    --pikol-border-rgb: 195 189 210;
+    --pikol-focus-rgb: 0 110 122;
+
+    --background: 260 30% 96%;
+    --foreground: 250 43% 11%;
+    --card: 260 50% 99%;
+    --card-foreground: 250 43% 11%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 250 43% 11%;
+    --primary: 215 100% 37%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 325 85% 34%;
+    --secondary-foreground: 0 0% 100%;
+    --muted: 260 22% 91%;
+    --muted-foreground: 255 12% 38%;
+    --accent: 184 45% 88%;
+    --accent-foreground: 250 43% 11%;
+    --destructive: 348 72% 42%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 260 16% 80%;
+    --input: 260 16% 80%;
+    --ring: 184 100% 28%;
+    --chart-1: 215 100% 37%;
+    --chart-2: 184 100% 28%;
+    --chart-3: 325 85% 34%;
+    --chart-4: 256 62% 44%;
+    --chart-5: 51 100% 32%;
+    --radius: 0.75rem;
+  }
+
+  .dark {
+    color-scheme: dark;
+
+    /* PikolGo Retro-Futurism tokens: primary dark terminal */
+    --pikol-bg: #0b0b18;
+    --pikol-bg-deep: #060611;
+    --pikol-surface: #15152a;
+    --pikol-surface-raised: #1a1a32;
+    --pikol-primary: #0080ff;
+    --pikol-secondary: #d91a72;
+    --pikol-cyan: #00d8e6;
+    --pikol-purple: #5d34d0;
+    --pikol-pink: #d92cc8;
+    --pikol-silver: #c0c0c0;
+    --pikol-gold: #ffd700;
+    --pikol-success: #20c979;
+    --pikol-warning: #f2b84b;
+    --pikol-danger: #ef476f;
+    --pikol-text: #e8e8f2;
+    --pikol-text-muted: #9b9bb2;
+    --pikol-border: #343454;
+    --pikol-focus: #00d8e6;
+
+    --pikol-bg-rgb: 11 11 24;
+    --pikol-deep-rgb: 6 6 17;
+    --pikol-surface-rgb: 21 21 42;
+    --pikol-raised-rgb: 26 26 50;
+    --pikol-primary-rgb: 0 128 255;
+    --pikol-secondary-rgb: 217 26 114;
+    --pikol-cyan-rgb: 0 216 230;
+    --pikol-purple-rgb: 93 52 208;
+    --pikol-pink-rgb: 217 44 200;
+    --pikol-silver-rgb: 192 192 192;
+    --pikol-gold-rgb: 255 215 0;
+    --pikol-success-rgb: 32 201 121;
+    --pikol-warning-rgb: 242 184 75;
+    --pikol-danger-rgb: 239 71 111;
+    --pikol-text-rgb: 232 232 242;
+    --pikol-muted-rgb: 155 155 178;
+    --pikol-border-rgb: 52 52 84;
+    --pikol-focus-rgb: 0 216 230;
+
+    --background: 240 37% 7%;
+    --foreground: 240 28% 93%;
+    --card: 240 33% 12%;
+    --card-foreground: 240 28% 93%;
+    --popover: 240 32% 15%;
+    --popover-foreground: 240 28% 93%;
+    --primary: 210 100% 50%;
+    --primary-foreground: 240 50% 5%;
+    --secondary: 332 79% 48%;
+    --secondary-foreground: 240 28% 96%;
+    --muted: 240 30% 15%;
+    --muted-foreground: 240 13% 65%;
+    --accent: 184 100% 45%;
+    --accent-foreground: 240 48% 5%;
+    --destructive: 346 84% 61%;
+    --destructive-foreground: 240 48% 5%;
+    --border: 240 24% 27%;
+    --input: 240 24% 27%;
+    --ring: 184 100% 45%;
+    --chart-1: 210 100% 50%;
+    --chart-2: 152 73% 46%;
+    --chart-3: 332 79% 48%;
+    --chart-4: 256 62% 51%;
+    --chart-5: 51 100% 50%;
+  }
+
   * {
     @apply border-border;
   }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  html,
   body {
-    @apply bg-background text-foreground;
+    overflow-x: clip;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    min-height: 100dvh;
+    background-image:
+      radial-gradient(circle at 12% 8%, color-mix(in srgb, var(--pikol-primary) 12%, transparent), transparent 28rem),
+      radial-gradient(circle at 86% 24%, color-mix(in srgb, var(--pikol-secondary) 8%, transparent), transparent 24rem);
+    background-attachment: fixed;
+    font-family: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    line-height: 1.55;
+  }
+
+  /* Static CRT scanlines. Kept below dialogs (300) so form text stays clean. */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 90;
+    pointer-events: none;
+    opacity: 0.022;
+    background: repeating-linear-gradient(
+      to bottom,
+      transparent 0,
+      transparent 2px,
+      #000 3px,
+      transparent 4px
+    );
+  }
+
+  .dark body::before {
+    opacity: 0.05;
+  }
+
+  ::selection {
+    background: color-mix(in srgb, var(--pikol-cyan) 34%, transparent);
+    color: var(--pikol-text);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--pikol-focus);
+    outline-offset: 2px;
+  }
+
+  select option {
+    background: hsl(var(--popover));
+    color: hsl(var(--popover-foreground));
   }
 }
 
 @layer components {
-  .neo-focus {
-    @apply focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#2196F3] focus-visible:ring-offset-2 focus-visible:ring-offset-[#FFFDF2] dark:focus-visible:ring-[#FFDB58] dark:focus-visible:ring-offset-[#111111];
+  .retro-page {
+    @apply mx-auto w-full max-w-7xl px-6;
   }
 
-  .neo-nav-link,
-  .neo-footer-link {
-    @apply neo-focus cursor-pointer text-sm font-black transition-all duration-150;
+  .retro-kicker {
+    @apply inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em];
+    color: var(--pikol-cyan);
   }
 
-  .neo-nav-link:hover,
-  .neo-footer-link:hover {
-    @apply -translate-y-0.5 text-[#FF6B6B];
+  .retro-kicker::before {
+    content: "";
+    width: 1.5rem;
+    height: 1px;
+    background: currentColor;
   }
 
-  .neo-button {
-    @apply neo-focus inline-flex min-h-12 cursor-pointer items-center gap-2 border-[3px] border-black px-5 py-3 text-center text-sm font-black uppercase tracking-wide text-black shadow-[5px_5px_0_#000] transition-all duration-150 dark:border-[#FFFDF2] dark:shadow-[5px_5px_0_#FFFDF2];
+  .retro-heading {
+    @apply font-semibold tracking-[-0.045em] text-balance;
   }
 
-  .neo-button:hover {
-    @apply -translate-x-0.5 -translate-y-0.5 shadow-[7px_7px_0_#000] dark:shadow-[7px_7px_0_#FFFDF2];
+  .retro-subheading {
+    @apply max-w-2xl text-pretty leading-relaxed text-muted-foreground;
   }
 
-  .neo-button:active {
-    @apply translate-x-1 translate-y-1 shadow-[1px_1px_0_#000] dark:shadow-[1px_1px_0_#FFFDF2];
+  .retro-panel {
+    @apply relative rounded-xl border bg-card text-card-foreground;
+    box-shadow:
+      inset 0 1px 0 color-mix(in srgb, var(--pikol-cyan) 9%, transparent),
+      0 24px 56px -48px #000;
   }
 
-  .neo-button-yellow {
-    @apply bg-[#FFDB58];
+  .retro-panel-raised {
+    @apply relative rounded-xl border bg-card text-card-foreground;
+    background:
+      linear-gradient(145deg, color-mix(in srgb, var(--pikol-primary) 7%, transparent), transparent 42%),
+      hsl(var(--popover));
+    box-shadow:
+      inset 0 1px 0 color-mix(in srgb, var(--pikol-cyan) 9%, transparent),
+      0 24px 56px -48px #000;
   }
 
-  .neo-button-red {
-    @apply bg-[#FF6B6B];
+  .retro-corners {
+    clip-path: polygon(
+      0 0,
+      calc(100% - 1.15rem) 0,
+      100% 1.15rem,
+      100% 100%,
+      1.15rem 100%,
+      0 calc(100% - 1.15rem)
+    );
   }
 
-  .neo-button-cream {
-    @apply bg-[#FFFDF2];
+  /*
+   * The supplied wordmark is dark navy and disappears on the dark terminal
+   * surfaces. A light brand plate preserves the asset exactly while keeping it
+   * legible in both themes.
+   */
+  .retro-logo-plate {
+    padding: 0.28rem 0.55rem;
+    border-radius: 0.45rem;
+    background: #f7f5ee;
+    box-shadow:
+      inset 0 0 0 1px color-mix(in srgb, var(--pikol-cyan) 32%, transparent),
+      0 0 22px color-mix(in srgb, var(--pikol-cyan) 12%, transparent);
   }
 
-  .neo-icon-button {
-    @apply neo-focus grid size-12 cursor-pointer place-items-center border-[3px] border-black bg-[#FFDB58] text-black shadow-[4px_4px_0_#000] transition-all duration-150 dark:border-[#FFFDF2] dark:shadow-[4px_4px_0_#FFFDF2];
+  .retro-hud {
+    border-color: color-mix(in srgb, var(--pikol-cyan) 38%, var(--pikol-border));
+    background:
+      linear-gradient(135deg, color-mix(in srgb, var(--pikol-cyan) 8%, transparent), transparent 42%),
+      linear-gradient(315deg, color-mix(in srgb, var(--pikol-purple) 12%, transparent), transparent 46%),
+      hsl(var(--card));
+    box-shadow:
+      inset 0 1px 0 color-mix(in srgb, var(--pikol-cyan) 16%, transparent),
+      0 0 42px -24px color-mix(in srgb, var(--pikol-cyan) 55%, transparent);
   }
 
-  .neo-icon-button:hover {
-    @apply -translate-x-0.5 -translate-y-0.5 shadow-[6px_6px_0_#000] dark:shadow-[6px_6px_0_#FFFDF2];
+  .retro-court-panel {
+    border-color: color-mix(in srgb, var(--pikol-cyan) 42%, var(--pikol-border));
+    background:
+      linear-gradient(90deg, color-mix(in srgb, var(--pikol-cyan) 7%, transparent), transparent 45%),
+      linear-gradient(270deg, color-mix(in srgb, var(--pikol-pink) 7%, transparent), transparent 45%),
+      hsl(var(--card));
+    box-shadow:
+      inset 0 1px 0 color-mix(in srgb, var(--pikol-cyan) 15%, transparent),
+      0 0 38px -26px color-mix(in srgb, var(--pikol-cyan) 60%, transparent);
   }
 
-  .neo-icon-button:active {
-    @apply translate-x-1 translate-y-1 shadow-none;
+  .retro-on-air {
+    border-color: color-mix(in srgb, var(--pikol-secondary) 55%, var(--pikol-border));
+    background: color-mix(in srgb, var(--pikol-secondary) 16%, transparent);
+    color: var(--pikol-secondary);
+    box-shadow: 0 0 20px -8px color-mix(in srgb, var(--pikol-secondary) 55%, transparent);
   }
 
-  .neo-kicker {
-    @apply inline-block border-[3px] border-black px-3 py-1.5 text-xs font-black uppercase tracking-[0.18em] text-black shadow-[3px_3px_0_#000];
+  .retro-table-head {
+    background:
+      linear-gradient(90deg, color-mix(in srgb, var(--pikol-purple) 14%, transparent), transparent 70%),
+      hsl(var(--muted) / 0.55);
+    border-color: color-mix(in srgb, var(--pikol-cyan) 30%, var(--pikol-border));
+    color: var(--pikol-cyan);
   }
 
-  .neo-card {
-    @apply relative border-[3px] border-black bg-[#FFFDF2] p-6 shadow-[5px_5px_0_#000] transition-all duration-150 dark:border-[#FFFDF2] dark:bg-[#171717] dark:shadow-[5px_5px_0_#FFFDF2] sm:p-8;
+  .retro-grid-card {
+    background-image:
+      linear-gradient(color-mix(in srgb, var(--pikol-border) 45%, transparent) 1px, transparent 1px),
+      linear-gradient(90deg, color-mix(in srgb, var(--pikol-border) 45%, transparent) 1px, transparent 1px);
+    background-size: 2.25rem 2.25rem;
   }
 
-  .neo-card:hover {
-    @apply -translate-x-0.5 -translate-y-0.5 shadow-[8px_8px_0_#000] dark:shadow-[8px_8px_0_#FFFDF2];
+  .retro-divider {
+    @apply h-px w-full border-0;
+    background: linear-gradient(90deg, transparent, var(--pikol-border), transparent);
   }
 
-  .neo-social-label {
-    @apply grid size-11 place-items-center border-2 border-[#FFFDF2] text-[#FFFDF2]/65;
+  .retro-stat {
+    @apply rounded-lg border bg-card px-3 py-2;
+  }
+
+  .retro-select {
+    @apply h-11 w-full rounded-lg border border-input bg-background/55 px-3 text-sm text-foreground shadow-inner outline-none transition-[border-color,box-shadow,background-color] duration-150 hover:border-pikol-cyan/35 focus-visible:border-pikol-cyan focus-visible:bg-background focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:cursor-not-allowed disabled:opacity-50;
+  }
+
+  .retro-checkbox {
+    @apply mt-0.5 size-5 shrink-0 cursor-pointer rounded border-2 border-input bg-background accent-primary focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background;
+  }
+
+  .retro-back-link {
+    @apply inline-flex min-h-10 items-center gap-1 rounded-md px-2 text-sm text-muted-foreground transition-colors hover:bg-muted/60 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring;
+  }
+
+  .retro-section-title {
+    @apply text-lg font-semibold tracking-[-0.025em];
+  }
+
+  .retro-live-dot {
+    @apply inline-block size-2 rounded-full;
+    background: var(--pikol-cyan);
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--pikol-cyan) 45%, transparent);
+    animation: pikol-live-pulse 2.4s ease-out infinite;
+  }
+
+  .retro-glitch {
+    animation: pikol-flicker 7s steps(1, end) infinite;
+  }
+
+  .retro-podium-gold {
+    @apply border-l-2;
+    border-left-color: var(--pikol-gold);
+    background: color-mix(in srgb, var(--pikol-gold) 10%, transparent);
+  }
+
+  .retro-podium-silver {
+    @apply border-l-2;
+    border-left-color: var(--pikol-silver);
+    background: color-mix(in srgb, var(--pikol-silver) 10%, transparent);
+  }
+
+  .retro-podium-bronze {
+    @apply border-l-2;
+    border-left-color: var(--pikol-secondary);
+    background: color-mix(in srgb, var(--pikol-secondary) 10%, transparent);
+  }
+
+  .retro-staged {
+    border-color: color-mix(in srgb, var(--pikol-cyan) 42%, var(--pikol-border));
+    background:
+      linear-gradient(90deg, color-mix(in srgb, var(--pikol-cyan) 9%, transparent), transparent 42%),
+      hsl(var(--card));
+  }
+
+  .retro-up-next {
+    border-color: color-mix(in srgb, var(--pikol-primary) 58%, var(--pikol-border));
+    background:
+      linear-gradient(90deg, color-mix(in srgb, var(--pikol-primary) 16%, transparent), transparent 52%),
+      linear-gradient(270deg, color-mix(in srgb, var(--pikol-cyan) 8%, transparent), transparent 46%),
+      hsl(var(--card));
+    box-shadow:
+      inset 0 1px 0 color-mix(in srgb, var(--pikol-primary) 18%, transparent),
+      0 0 34px -28px color-mix(in srgb, var(--pikol-primary) 65%, transparent);
+  }
+
+  .retro-preparing {
+    border-color: color-mix(in srgb, var(--pikol-purple) 55%, var(--pikol-border));
+    background:
+      linear-gradient(90deg, color-mix(in srgb, var(--pikol-purple) 16%, transparent), transparent 50%),
+      linear-gradient(270deg, color-mix(in srgb, var(--pikol-pink) 7%, transparent), transparent 46%),
+      hsl(var(--card));
   }
 }
 
-/* The application shell remains unchanged on every route except the landing page. */
-body:has(.landing-shell) > .site-header,
-body:has(.landing-shell) > .site-footer {
-  display: none;
+@layer utilities {
+  .retro-background {
+    position: fixed;
+    inset: 0;
+    z-index: -10;
+    overflow: hidden;
+    pointer-events: none;
+  }
+
+  .retro-background::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(color-mix(in srgb, var(--pikol-border) 20%, transparent) 1px, transparent 1px),
+      linear-gradient(90deg, color-mix(in srgb, var(--pikol-border) 20%, transparent) 1px, transparent 1px);
+    background-size: 5rem 5rem;
+    mask-image: linear-gradient(to bottom, #000, transparent 76%);
+    opacity: 0.42;
+  }
+
+  .retro-background::after {
+    content: "";
+    position: absolute;
+    inset: auto -20% -38% -20%;
+    height: 62vh;
+    background-image:
+      linear-gradient(color-mix(in srgb, var(--pikol-cyan) 22%, transparent) 1px, transparent 1px),
+      linear-gradient(90deg, color-mix(in srgb, var(--pikol-cyan) 22%, transparent) 1px, transparent 1px);
+    background-size: 4.5rem 3.4rem;
+    transform: perspective(26rem) rotateX(58deg);
+    transform-origin: center bottom;
+    opacity: 0.25;
+  }
+
+  .text-glow {
+    text-shadow: 0 0 18px color-mix(in srgb, currentColor 28%, transparent);
+  }
+
+  .safe-bottom {
+    padding-bottom: max(1.5rem, env(safe-area-inset-bottom));
+  }
 }
 
-body:has(.landing-shell) > main {
-  max-width: none;
-  padding: 0;
+@keyframes pikol-live-pulse {
+  0% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--pikol-cyan) 44%, transparent);
+  }
+  70% {
+    box-shadow: 0 0 0 0.45rem transparent;
+  }
+  100% {
+    box-shadow: 0 0 0 0 transparent;
+  }
+}
+
+@keyframes pikol-flicker {
+  0%,
+  92%,
+  94%,
+  100% {
+    opacity: 1;
+    text-shadow: none;
+  }
+  93% {
+    opacity: 0.78;
+    text-shadow:
+      2px 0 color-mix(in srgb, var(--pikol-secondary) 65%, transparent),
+      -2px 0 color-mix(in srgb, var(--pikol-cyan) 55%, transparent);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .landing-shell *,
-  .landing-shell *::before,
-  .landing-shell *::after {
-    scroll-behavior: auto !important;
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+  }
+
+  .retro-live-dot,
+  .retro-glitch {
+    animation: none !important;
   }
 }

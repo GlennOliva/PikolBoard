@@ -1,9 +1,12 @@
 "use client";
 
+import { ListOrdered } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
+import { EmptyState } from "@/components/ui/empty-state";
 import type { PublicSessionPresenceRow } from "@/lib/db/types";
+import { cn } from "@/lib/utils";
 import {
   attendanceLabel,
   estimatedWaitMinutes,
@@ -23,28 +26,47 @@ export function LiveBoardQueue({
 }) {
   if (rows.length === 0) {
     return (
-      <Card>
-        <CardContent className="py-6 text-sm text-muted-foreground">
-          Nobody has checked in yet.
-        </CardContent>
-      </Card>
+      <EmptyState
+        icon={<ListOrdered className="size-5" />}
+        title="Nobody has checked in yet."
+        body="The queue fills as players check in with the organizer."
+      />
     );
   }
 
   return (
-    <Card>
+    <Card className="overflow-hidden">
       <CardContent className="overflow-x-auto p-0">
-        <table className="w-full min-w-[46rem] text-sm">
-          <caption className="sr-only">Player queue and attendance status</caption>
+        <table
+          className="w-full min-w-[48rem] text-sm"
+          data-testid="waiting-queue-table"
+        >
+          <caption className="sr-only">
+            Player queue, attendance status, and estimated wait
+          </caption>
           <thead>
-            <tr className="border-b text-left text-xs uppercase tracking-wide text-muted-foreground">
-              <th scope="col" className="px-3 py-2">Position</th>
-              <th scope="col" className="px-3 py-2">Player</th>
-              <th scope="col" className="px-3 py-2">Skill</th>
-              <th scope="col" className="px-3 py-2 text-right">Games</th>
-              <th scope="col" className="px-3 py-2 text-right">Waiting time</th>
-              <th scope="col" className="px-3 py-2 text-right">Estimated wait</th>
-              <th scope="col" className="px-3 py-2">Status</th>
+            <tr className="retro-table-head border-b text-left text-[0.65rem] uppercase tracking-[0.14em]">
+              <th scope="col" className="px-3 py-2.5 font-semibold">
+                Position
+              </th>
+              <th scope="col" className="px-3 py-2.5 font-semibold">
+                Player
+              </th>
+              <th scope="col" className="px-3 py-2.5 font-semibold">
+                Skill
+              </th>
+              <th scope="col" className="px-3 py-2.5 text-right font-semibold">
+                Games
+              </th>
+              <th scope="col" className="px-3 py-2.5 text-right font-semibold">
+                Waiting time
+              </th>
+              <th scope="col" className="px-3 py-2.5 text-right font-semibold">
+                Estimated wait
+              </th>
+              <th scope="col" className="px-3 py-2.5 font-semibold">
+                Status
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -59,16 +81,37 @@ export function LiveBoardQueue({
                 : null;
 
               return (
-                <tr key={row.presence_id} className="border-b border-border/60 last:border-0">
-                  <td className="px-3 py-2 tabular-nums">{row.queue_position ?? "—"}</td>
-                  <th scope="row" className="px-3 py-2 text-left font-medium">{row.display_name}</th>
-                  <td className="px-3 py-2 text-muted-foreground">Level {row.skill_level}</td>
-                  <td className="px-3 py-2 text-right tabular-nums">{row.games_played}</td>
-                  <td className="px-3 py-2 text-right tabular-nums">
+                <tr
+                  key={row.presence_id}
+                  className={cn(
+                    "border-b border-pikol-border/60 transition-colors last:border-0",
+                    "odd:bg-card/80 even:bg-pikol-surface/40 hover:bg-pikol-cyan/5",
+                  )}
+                >
+                  <td className="px-3 py-2.5 tabular-nums">
+                    {row.queue_position ?? "—"}
+                  </td>
+                  <th
+                    scope="row"
+                    className="px-3 py-2.5 text-left font-medium"
+                  >
+                    {row.display_name}
+                  </th>
+                  <td className="px-3 py-2.5 text-muted-foreground">
+                    Level {row.skill_level}
+                  </td>
+                  <td className="px-3 py-2.5 text-right tabular-nums">
+                    {row.games_played}
+                  </td>
+                  <td className="px-3 py-2.5 text-right tabular-nums">
                     <WaitingTime row={row} waiting={waiting} />
                   </td>
-                  <td className="px-3 py-2 text-right tabular-nums">{formatEstimatedWait(estimate)}</td>
-                  <td className="px-3 py-2"><PresenceBadge status={row.attendance_status} /></td>
+                  <td className="px-3 py-2.5 text-right tabular-nums">
+                    {formatEstimatedWait(estimate)}
+                  </td>
+                  <td className="px-3 py-2.5">
+                    <PresenceBadge status={row.attendance_status} />
+                  </td>
                 </tr>
               );
             })}
@@ -113,7 +156,20 @@ function WaitingTime({
   return <>Waiting {formatWaitingTime(duration)}</>;
 }
 
-function PresenceBadge({ status }: { status: PublicSessionPresenceRow["attendance_status"] }) {
-  const active = status === "playing" || status === "staged";
-  return <Badge variant={active ? "default" : "secondary"}>{attendanceLabel(status)}</Badge>;
+function PresenceBadge({
+  status,
+}: {
+  status: PublicSessionPresenceRow["attendance_status"];
+}) {
+  const variant =
+    status === "playing"
+      ? "playing"
+      : status === "staged"
+        ? "preparing"
+        : status === "waiting"
+          ? "up-next"
+          : status === "break"
+            ? "warning"
+            : "completed";
+  return <Badge variant={variant}>{attendanceLabel(status)}</Badge>;
 }

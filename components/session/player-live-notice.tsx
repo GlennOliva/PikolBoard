@@ -1,4 +1,5 @@
 import { Card, CardContent } from "@/components/ui/card";
+import { PikolgoLogo } from "@/components/brand/pikolgo-logo";
 
 /**
  * The states a phone can land on that are not the board.
@@ -18,10 +19,12 @@ export function PlayerLiveNotice({
   description: string;
 }) {
   return (
-    <Card className="mx-auto max-w-xl">
-      <CardContent className="py-12">
-        <h1 className="text-2xl font-semibold">{title}</h1>
-        <p className="mt-3 text-sm text-muted-foreground">{description}</p>
+    <Card className="retro-corners mx-auto max-w-xl">
+      <CardContent className="flex flex-col items-start gap-4 py-12">
+        <PikolgoLogo sizes="150px" className="h-8" />
+        <p className="retro-kicker">Player live view</p>
+        <h1 className="retro-heading text-2xl sm:text-3xl">{title}</h1>
+        <p className="text-sm leading-relaxed text-muted-foreground">{description}</p>
       </CardContent>
     </Card>
   );
@@ -40,9 +43,11 @@ export function UnavailableLiveView() {
 /** The token resolves, but the organizer has not started the session yet. */
 export function DraftLiveView({ sessionName }: { sessionName: string }) {
   return (
-    <Card className="mx-auto max-w-xl">
-      <CardContent className="py-12 text-center">
-        <h1 className="text-2xl font-semibold">{sessionName}</h1>
+    <Card className="retro-corners mx-auto max-w-xl">
+      <CardContent className="flex flex-col items-center gap-4 py-12 text-center">
+        <PikolgoLogo sizes="150px" className="h-8" />
+        <p className="retro-kicker">Waiting for start</p>
+        <h1 className="retro-heading text-2xl sm:text-3xl">{sessionName}</h1>
         <p className="mt-3 text-sm text-muted-foreground">This session has not started yet.</p>
       </CardContent>
     </Card>

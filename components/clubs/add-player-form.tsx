@@ -72,7 +72,7 @@ export function AddPlayerForm({ clubId }: AddPlayerFormProps) {
             id="skillLevel"
             name="skillLevel"
             defaultValue="3"
-            className="h-9 rounded-md border border-input bg-transparent px-3 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
+            className="retro-select"
           >
             {Object.entries(SKILL_LABELS).map(([value, label]) => (
               <option key={value} value={value}>

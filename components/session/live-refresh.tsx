@@ -124,7 +124,7 @@ export function LiveRefresh({
         aria-hidden
         className={cn(
           "size-2 rounded-full",
-          live ? "bg-emerald-500" : "bg-muted-foreground/40",
+          live ? "bg-pikol-success" : "bg-muted-foreground/40",
         )}
       />
       {live ? "Live" : "Polling"}

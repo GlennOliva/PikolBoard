@@ -22,7 +22,7 @@ const ThemeSwitcher = () => {
   }, []);
 
   if (!mounted) {
-    return null;
+    return <div className="size-11" aria-hidden />;
   }
 
   const ICON_SIZE = 16;
@@ -57,7 +57,7 @@ const ThemeSwitcher = () => {
           )}
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-content" align="start">
+      <DropdownMenuContent className="w-40" align="end">
         <DropdownMenuRadioGroup
           value={theme}
           onValueChange={(e) => setTheme(e)}

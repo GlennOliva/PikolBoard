@@ -25,7 +25,10 @@ export function ClubTabs({
     : TABS;
 
   return (
-    <nav className="flex gap-1 overflow-x-auto border-b border-border text-sm">
+    <nav
+      aria-label="Club sections"
+      className="flex gap-1 overflow-x-auto rounded-lg border border-border bg-card/65 p-1 text-sm"
+    >
       {tabs.map((tab) => {
         const href = tab.segment ? `${base}/${tab.segment}` : base;
         const active =
@@ -37,10 +40,10 @@ export function ClubTabs({
             href={href}
             aria-current={active ? "page" : undefined}
             className={cn(
-              "-mb-px whitespace-nowrap border-b-2 px-3 py-2 transition-colors",
+              "min-h-10 whitespace-nowrap rounded-md border px-3 py-2 transition-colors",
               active
-                ? "border-primary font-medium text-foreground"
-                : "border-transparent text-muted-foreground hover:text-foreground",
+                ? "border-pikol-cyan/35 bg-pikol-cyan/10 font-medium text-pikol-cyan"
+                : "border-transparent text-muted-foreground hover:bg-muted/60 hover:text-foreground",
             )}
           >
             {tab.label}

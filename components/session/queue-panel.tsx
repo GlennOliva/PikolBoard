@@ -5,6 +5,7 @@ import { Coffee, LogIn, LogOut, PlayCircle, UserMinus } from "lucide-react";
 import { SubmitButton } from "@/components/forms/submit-button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { EmptyState } from "@/components/ui/empty-state";
 import {
   checkInAction,
   checkInSessionPlayersAction,
@@ -70,7 +71,7 @@ export function QueuePanel({
 
   return (
     <Card>
-      <CardHeader className="flex flex-row items-start justify-between gap-3">
+      <CardHeader className="flex flex-row items-start justify-between gap-3 border-b border-border/60">
         <CardTitle className="text-base">Queue and attendance</CardTitle>
         {canManage ? (
           <AddPlayersDialog
@@ -81,10 +82,10 @@ export function QueuePanel({
       </CardHeader>
       <CardContent className="flex flex-col gap-6">
         {roster.length === 0 ? (
-          <p className="text-sm text-muted-foreground">
-            Nobody is on this session&apos;s roster yet. Use Add players to
-            bring somebody in.
-          </p>
+          <EmptyState
+            title="Nobody is on this session roster"
+            body="Use Add players to bring somebody in, then check them into the rotation."
+          />
         ) : null}
 
         {groups
@@ -92,7 +93,7 @@ export function QueuePanel({
           .map((group) => (
             <section key={group.key} aria-label={group.title}>
               <div className="flex flex-wrap items-center justify-between gap-2">
-                <h3 className="text-sm font-medium text-muted-foreground">
+                <h3 className="text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">
                   {group.title}
                 </h3>
                 {group.key === "off" && canManage ? (
@@ -106,15 +107,24 @@ export function QueuePanel({
                   />
                 ) : null}
               </div>
-              <ul className="mt-2 flex flex-col divide-y divide-border rounded-lg border border-border">
+              <ul
+                className={
+                  "mt-2 flex flex-col divide-y divide-border overflow-hidden rounded-lg border bg-background/35 " +
+                  (group.key === "waiting"
+                    ? "border-pikol-cyan/30"
+                    : group.key === "break"
+                      ? "border-pikol-warning/30"
+                      : "border-border")
+                }
+              >
                 {group.rows.map((player) => (
                   <li
                     key={player.id}
-                    className="flex flex-wrap items-center gap-2 px-3 py-2"
+                    className="flex flex-wrap items-center gap-2 px-3 py-2 transition-colors hover:bg-muted/35"
                   >
                     <span
                       aria-hidden
-                      className="grid size-8 shrink-0 place-items-center rounded-full bg-muted text-[10px] font-semibold"
+                      className="grid size-8 shrink-0 place-items-center rounded-md border border-border bg-muted text-[10px] font-semibold text-pikol-cyan"
                     >
                       {initialsOf(player.display_name)}
                     </span>
@@ -140,7 +150,7 @@ export function QueuePanel({
                     </div>
 
                     {player.queue_position ? (
-                      <Badge variant="outline">#{player.queue_position}</Badge>
+                      <Badge variant="up-next">#{player.queue_position}</Badge>
                     ) : null}
 
                     {canManage ? (

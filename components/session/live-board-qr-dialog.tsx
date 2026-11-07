@@ -68,7 +68,7 @@ export function LiveBoardQrDialog(props: LiveBoardQrDialogProps) {
         </DialogTrigger>
         <DialogContent
           className={cn(
-            "max-h-[calc(100vh-2rem)] overflow-y-auto sm:max-w-xl",
+            "max-h-[calc(100dvh-2rem)] overflow-y-auto sm:max-w-xl",
             expanded && "inset-0 top-0 left-0 h-dvh max-h-none max-w-none translate-x-0 translate-y-0 rounded-none border-0 sm:max-w-none",
           )}
         >
@@ -178,7 +178,7 @@ function QrImage({
 
   if (blocked) {
     return (
-      <div role="alert" className="rounded-lg border border-amber-500/40 bg-amber-500/10 p-4 text-sm">
+      <div role="alert" className="rounded-lg border border-pikol-warning/40 bg-pikol-warning/10 p-4 text-sm text-pikol-warning">
         <p className="flex items-start gap-2 font-medium">
           <TriangleAlert className="mt-0.5 size-4 shrink-0" aria-hidden />
           {warning}
