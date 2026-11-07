@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { PasswordInput } from "@/components/forms/password-input";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -72,37 +73,35 @@ export function SignUpForm({
                 <Label htmlFor="email">Email</Label>
                 <Input
                   id="email"
+                  name="email"
                   type="email"
+                  autoComplete="email"
                   placeholder="m@example.com"
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                 />
               </div>
-              <div className="grid gap-2">
-                <div className="flex items-center">
-                  <Label htmlFor="password">Password</Label>
-                </div>
-                <Input
-                  id="password"
-                  type="password"
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                />
-              </div>
-              <div className="grid gap-2">
-                <div className="flex items-center">
-                  <Label htmlFor="repeat-password">Repeat Password</Label>
-                </div>
-                <Input
-                  id="repeat-password"
-                  type="password"
-                  required
-                  value={repeatPassword}
-                  onChange={(e) => setRepeatPassword(e.target.value)}
-                />
-              </div>
+              <PasswordInput
+                id="password"
+                name="password"
+                label="Password"
+                autoComplete="new-password"
+                required
+                disabled={isLoading}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+              <PasswordInput
+                id="repeat-password"
+                name="repeat-password"
+                label="Repeat Password"
+                autoComplete="new-password"
+                required
+                disabled={isLoading}
+                value={repeatPassword}
+                onChange={(e) => setRepeatPassword(e.target.value)}
+              />
               {error && (
                 <p role="alert" className="text-sm text-destructive">
                   {error}

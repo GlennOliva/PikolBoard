@@ -27,7 +27,7 @@ export function SiteFooter() {
           <Link href="/" className="transition-colors hover:text-foreground">
             Home
           </Link>
-          <Link href="/clubs" className="transition-colors hover:text-foreground">
+          <Link href="/protected" className="transition-colors hover:text-foreground">
             My clubs
           </Link>
           <Link href="/auth/login" className="transition-colors hover:text-foreground">

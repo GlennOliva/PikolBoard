@@ -15,6 +15,7 @@ describe("SiteNav", () => {
     fireEvent.click(screen.getByRole("button", { name: "Open navigation menu" }));
 
     expect(screen.getByRole("navigation", { name: "Mobile navigation" })).toBeTruthy();
+    expect(screen.getByRole("link", { name: "My clubs" }).getAttribute("href")).toBe("/protected");
     expect(screen.getByRole("link", { name: "Dashboard" }).getAttribute("aria-current")).toBe("page");
     expect(screen.getByRole("link", { name: "Sign in" })).toBeTruthy();
     expect(screen.getByRole("link", { name: "Sign up" })).toBeTruthy();

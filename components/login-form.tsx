@@ -12,9 +12,10 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { PasswordInput } from "@/components/forms/password-input";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 export function LoginForm({
   className,
@@ -24,27 +25,46 @@ export function LoginForm({
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const submittingRef = useRef(false);
   const router = useRouter();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    const supabase = createClient();
+    if (submittingRef.current) return;
+
+    submittingRef.current = true;
     setIsLoading(true);
     setError(null);
+
+    const supabase = createClient();
+    let message: string | null = null;
 
     try {
       const { error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
-      if (error) throw error;
-      // Update this route to redirect to an authenticated route. The user already has an active session.
-      router.push("/protected");
-    } catch (error: unknown) {
-      setError(error instanceof Error ? error.message : "An error occurred");
-    } finally {
-      setIsLoading(false);
+
+      if (error) {
+        message =
+          error.code === "invalid_credentials"
+            ? "Email or password is incorrect. Please try again."
+            : "We could not sign you in right now. Please try again.";
+      }
+    } catch {
+      message = "We could not sign you in right now. Please try again.";
     }
+
+    if (message) {
+      setError(message);
+      setIsLoading(false);
+      submittingRef.current = false;
+      return;
+    }
+
+    setPassword("");
+    router.replace("/protected");
+    router.refresh();
   };
 
   return (
@@ -63,29 +83,34 @@ export function LoginForm({
                 <Label htmlFor="email">Email</Label>
                 <Input
                   id="email"
+                  name="email"
                   type="email"
+                  autoComplete="email"
                   placeholder="m@example.com"
                   required
+                  disabled={isLoading}
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                 />
               </div>
               <div className="grid gap-2">
-                <div className="flex items-center">
-                  <Label htmlFor="password">Password</Label>
-                  <Link
-                    href="/auth/forgot-password"
-                    className="ml-auto inline-block text-sm underline-offset-4 hover:underline"
-                  >
-                    Forgot your password?
-                  </Link>
-                </div>
-                <Input
+                <PasswordInput
                   id="password"
-                  type="password"
+                  name="password"
+                  label="Password"
+                  autoComplete="current-password"
                   required
+                  disabled={isLoading}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
+                  labelAction={
+                    <Link
+                      href="/auth/forgot-password"
+                      className="inline-block text-sm underline-offset-4 hover:underline"
+                    >
+                      Forgot your password?
+                    </Link>
+                  }
                 />
               </div>
               {error && (
@@ -93,7 +118,12 @@ export function LoginForm({
                   {error}
                 </p>
               )}
-              <Button type="submit" className="w-full" disabled={isLoading}>
+              <Button
+                type="submit"
+                className="w-full"
+                disabled={isLoading}
+                aria-busy={isLoading}
+              >
                 {isLoading ? "Signing in…" : "Sign in"}
               </Button>
             </div>

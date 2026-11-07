@@ -9,7 +9,12 @@ describe("public route gating", () => {
   });
 
   it("keeps the organizer dashboard private", () => {
+    expect(isPublicPath("/protected")).toBe(false);
     expect(isPublicPath("/sessions/10000000-0000-4000-8000-000000000001")).toBe(false);
+  });
+
+  it("keeps both the legacy clubs index and club routes private", () => {
+    expect(isPublicPath("/clubs")).toBe(false);
     expect(isPublicPath("/clubs/20000000-0000-4000-8000-000000000001")).toBe(false);
   });
 });

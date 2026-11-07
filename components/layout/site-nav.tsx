@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils";
 
 const links = [
   { href: "/", label: "Home" },
-  { href: "/clubs", label: "My clubs" },
+  { href: "/protected", label: "My clubs" },
   { href: "/protected", label: "Dashboard" },
   { href: "/auth/login", label: "Sign in" },
   { href: "/auth/sign-up", label: "Sign up" },
@@ -79,7 +79,7 @@ export function SiteNav() {
                   : pathname.startsWith(link.href);
 
               return (
-                <li key={link.href}>
+                <li key={`${link.href}-${link.label}`}>
                   <Link
                     href={link.href}
                     onClick={() => setOpen(false)}
